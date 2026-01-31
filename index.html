@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Requirements Checker</title>
+
+<style>
+body {
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background-color: #f4f8f5;
+  margin: 0;
+  padding: 0;
+}
+
+h2, h3 {
+  text-align: center;
+  color: #2f7a2f;
+}
+
+.form-container {
+  background-color: white;
+  max-width: 900px;
+  margin: 20px auto;
+  padding: 25px;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+
+.form-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 15px;
+  margin-bottom: 15px;
+}
+
+input, select {
+  flex: 1 1 200px;
+  padding: 10px;
+  border-radius: 6px;
+  border: 1px solid #ccc;
+}
+
+button {
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 15px;
+  cursor: pointer;
+}
+
+.save-btn {
+  background-color: #4CAF50;
+  color: white;
+}
+
+.cancel-btn {
+  background-color: #9e9e9e;
+  color: white;
+}
+
+button:hover {
+  opacity: 0.9;
+}
+
+@media (max-width: 768px) {
+  .form-row { flex-direction: column; }
+}
+</style>
+</head>
+
+<body>
+
+<h2>Student Requirements Checker</h2>
+
+<div class="form-container">
+<form id="studentForm">
+
+  <div class="form-row">
+    <input type="text" id="surname" placeholder="Surname" required>
+    <input type="text" id="firstname" placeholder="First Name" required>
+    <input type="text" id="middlename" placeholder="Middle Name" required>
+  </div>
+
+  <div class="form-row">
+    <input type="text" id="dept" placeholder="Department" required>
+    <input type="text" id="year" placeholder="Year" required>
+    <input type="text" id="section" placeholder="Section" required>
+  </div>
+
+  <div class="form-row">
+    <select id="entry" required>
+      <option value="">Select Entry</option>
+      <option value="Regular">Regular</option>
+      <option value="Transferee">Transferee</option>
+    </select>
+    <input type="text" id="prevschool" placeholder="Previous School">
+    <input type="date" id="birthdate" required>
+  </div>
+
+  <div class="form-row">
+    <select id="status" required>
+      <option value="">Select Status</option>
+      <option value="Complete">Complete</option>
+      <option value="Pending">Pending</option>
+    </select>
+
+    <button type="submit" class="save-btn">Save Student</button>
+    <button type="button" id="cancelBtn" class="cancel-btn">Cancel</button>
+  </div>
+
+</form>
+</div>
+
+<script>
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxM5j42uxn6TY6Eo1ezK4i2xShhMHXAItQFsGS5VuFonIvlH5R9PFL5IBMRZSCiMkTR/exec";
+
+// SAVE STUDENT
+document.getElementById("studentForm").addEventListener("submit", function(e){
+  e.preventDefault();
+
+  const data = {
+    surname: surname.value,
+    firstname: firstname.value,
+    middlename: middlename.value,
+    dept: dept.value,
+    year: year.value,
+    section: section.value,
+    entry: entry.value,
+    prevschool: prevschool.value,
+    birthdate: birthdate.value,
+    status: status.value
+  };
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(data)
+  })
+  .then(res => res.json())
+  .then(result => {
+    if(result.success){
+      alert("✅ Student saved successfully!");
+      studentForm.reset();
+    } else {
+      alert("❌ Failed to save data");
+    }
+  })
+  .catch(() => alert("❌ Connection error"));
+});
+
+// CANCEL BUTTON
+document.getElementById("cancelBtn").addEventListener("click", () => {
+  if(confirm("Clear all fields?")){
+    studentForm.reset();
+  }
+});
+</script>
+
+</body>
+</html>
