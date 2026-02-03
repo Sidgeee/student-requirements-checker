@@ -1,94 +1,137 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
 <meta charset="UTF-8">
 <title>Registrar Dashboard</title>
 
 <style>
 body{
-  font-family: Arial;
+  font-family: Arial, sans-serif;
   background:#e8f5e9;
+  margin:0;
 }
 .container{
-  max-width:1100px;
+  max-width:1200px;
   margin:20px auto;
-  background:#fff;
+  background:white;
   padding:20px;
   border-radius:12px;
   box-shadow:0 4px 10px rgba(0,0,0,.1);
 }
-h2{color:#2e7d32;text-align:center}
-.row{display:flex;gap:10px;margin-bottom:10px}
-input,select{
-  flex:1;padding:10px;border-radius:6px;border:1px solid #ccc
+h2{
+  text-align:center;
+  color:#2e7d32;
+}
+.row{
+  display:flex;
+  gap:10px;
+  margin-bottom:10px;
+}
+input, select{
+  flex:1;
+  padding:10px;
+  border-radius:6px;
+  border:1px solid #ccc;
 }
 button{
-  padding:10px 20px;border:none;border-radius:6px;
-  cursor:pointer;font-weight:bold
+  padding:10px 18px;
+  border:none;
+  border-radius:6px;
+  cursor:pointer;
+  font-weight:bold;
 }
 .save{background:#2e7d32;color:white}
 .cancel{background:#9e9e9e;color:white}
-.req{display:flex;gap:15px}
+.req{display:flex;gap:15px;margin:10px 0}
 table{
-  width:100%;border-collapse:collapse;margin-top:20px
+  width:100%;
+  border-collapse:collapse;
+  margin-top:20px;
 }
 th,td{
-  border:1px solid #ccc;padding:8px;text-align:center
+  border:1px solid #ccc;
+  padding:8px;
+  text-align:center;
 }
-th{background:#2e7d32;color:white}
+th{
+  background:#2e7d32;
+  color:white;
+}
+.counter{
+  display:flex;
+  gap:30px;
+  margin:10px 0;
+  font-weight:bold;
+}
+@media print{
+  form, button {display:none}
+}
 </style>
 </head>
 
 <body>
+
 <div class="container">
-<h2>Registrar – Student Requirements</h2>
+<h2>Student Requirements – Registrar</h2>
 
+<!-- STATUS COUNTERS -->
+<div class="counter">
+  <div>✅ Complete: <span id="complete">0</span></div>
+  <div>⏳ Pending: <span id="pending">0</span></div>
+</div>
+
+<!-- FORM -->
 <form id="form">
-<div class="row">
-<input id="surname" placeholder="Surname" required>
-<input id="firstname" placeholder="First Name" required>
-<input id="middlename" placeholder="Middle Name">
-</div>
+  <div class="row">
+    <input id="surname" placeholder="Surname" required>
+    <input id="firstname" placeholder="First Name" required>
+    <input id="middlename" placeholder="Middle Name">
+  </div>
 
-<div class="row">
-<input id="dept" placeholder="Dept">
-<input id="year" placeholder="Year">
-<input id="section" placeholder="Section">
-</div>
+  <div class="row">
+    <input id="dept" placeholder="Department">
+    <input id="year" placeholder="Year">
+    <input id="section" placeholder="Section">
+  </div>
 
-<div class="row">
-<select id="entry">
-<option>Regular</option>
-<option>Transferee</option>
-</select>
-<input id="prevschool" placeholder="Previous School">
-<input id="birthdate" type="date">
-</div>
+  <div class="row">
+    <select id="entry">
+      <option value="Regular">Regular</option>
+      <option value="Transferee">Transferee</option>
+    </select>
+    <input id="prevschool" placeholder="Previous School">
+    <input id="birthdate" type="date">
+  </div>
 
-<div class="row">
-<select id="status">
-<option>Complete</option>
-<option>Pending</option>
-</select>
-</div>
+  <div class="row">
+    <select id="status">
+      <option value="Complete">Complete</option>
+      <option value="Pending">Pending</option>
+    </select>
+  </div>
 
-<b>Requirements:</b>
-<div class="req">
-<label><input type="checkbox" value="Form 138"> Form 138</label>
-<label><input type="checkbox" value="Good Moral"> Good Moral</label>
-<label><input type="checkbox" value="Birth Cert"> Birth Cert</label>
-</div>
+  <b>Requirements:</b>
+  <div class="req">
+    <label><input type="checkbox" value="Form 138"> Form 138</label>
+    <label><input type="checkbox" value="Good Moral"> Good Moral</label>
+    <label><input type="checkbox" value="Birth Certificate"> Birth Certificate</label>
+  </div>
 
-<br>
-<button class="save" type="submit">Save Student</button>
-<button class="cancel" type="button" onclick="document.getElementById('form').reset()">Cancel</button>
+  <button class="save" type="submit">Save Student</button>
+  <button class="cancel" type="button" onclick="resetForm()">Cancel</button>
+  <button type="button" onclick="window.print()">🖨️ Print</button>
 </form>
 
+<!-- TABLE -->
 <table>
 <thead>
 <tr>
-<th>Surname</th><th>First</th><th>Dept</th><th>Entry</th>
-<th>Status</th><th>Requirements</th><th>Timestamp</th>
+  <th>Surname</th>
+  <th>First Name</th>
+  <th>Dept</th>
+  <th>Status</th>
+  <th>Requirements</th>
+  <th>Action</th>
 </tr>
 </thead>
 <tbody id="tbody"></tbody>
@@ -96,53 +139,117 @@ th{background:#2e7d32;color:white}
 </div>
 
 <script>
+/* 🔴 VERY IMPORTANT: PUT YOUR NEW DEPLOYED URL HERE */
 const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxM5j42uxn6TY6Eo1ezK4i2xShhMHXAItQFsGS5VuFonIvlH5R9PFL5IBMRZSCiMkTR/exec";
 
-document.getElementById("form").onsubmit = e => {
+let editRow = null;
+
+// SAVE / EDIT
+form.onsubmit = e => {
   e.preventDefault();
-
-  const reqs = [...document.querySelectorAll("input[type=checkbox]:checked")]
-               .map(c=>c.value).join(", ");
-
-  fetch(WEB_APP_URL,{
-    method:"POST",
-    body:JSON.stringify({
-      surname:surname.value,
-      firstname:firstname.value,
-      middlename:middlename.value,
-      dept:dept.value,
-      year:year.value,
-      section:section.value,
-      entry:entry.value,
-      prevschool:prevschool.value,
-      birthdate:birthdate.value,
-      status:status.value,
-      requirements:reqs
-    })
-  }).then(()=>{form.reset();load();});
+  sendData(editRow ? "edit" : "add");
 };
 
-function load(){
-fetch(WEB_APP_URL)
-.then(r=>r.json())
-.then(d=>{
-  tbody.innerHTML="";
-  d.forEach(s=>{
-    tbody.innerHTML+=`
-    <tr>
-    <td>${s.Surname}</td>
-    <td>${s["First Name"]}</td>
-    <td>${s.Dept}</td>
-    <td>${s.Entry}</td>
-    <td>${s.Status}</td>
-    <td>${s.Requirements}</td>
-    <td>${s.Timestamp}</td>
-    </tr>`;
-  });
-});
+function sendData(action){
+  const reqs = [...document.querySelectorAll("input[type=checkbox]:checked")]
+    .map(c => c.value).join(", ");
+
+  const payload = {
+    action,
+    row: editRow,
+    surname: surname.value,
+    firstname: firstname.value,
+    middlename: middlename.value,
+    dept: dept.value,
+    year: year.value,
+    section: section.value,
+    entry: entry.value,
+    prevschool: prevschool.value,
+    birthdate: birthdate.value,
+    status: status.value,
+    requirements: reqs
+  };
+
+  fetch(WEB_APP_URL, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify(payload)
+  })
+  .then(res => res.json())
+  .then(() => {
+    resetForm();
+    loadData();
+  })
+  .catch(err => alert("Connection error"));
 }
-load();
+
+// LOAD TABLE
+function loadData(){
+  fetch(WEB_APP_URL)
+    .then(res => res.json())
+    .then(data => {
+      tbody.innerHTML = "";
+      let c=0,p=0;
+
+      data.forEach(s => {
+        if(s.Status === "Complete") c++;
+        if(s.Status === "Pending") p++;
+
+        tbody.innerHTML += `
+        <tr>
+          <td>${s.Surname}</td>
+          <td>${s["First Name"]}</td>
+          <td>${s.Dept}</td>
+          <td>${s.Status}</td>
+          <td>${s.Requirements}</td>
+          <td>
+            <button onclick='editStudent(${JSON.stringify(s)})'>✏️</button>
+            <button onclick='deleteStudent(${s._row})'>🗑️</button>
+          </td>
+        </tr>`;
+      });
+
+      complete.textContent = c;
+      pending.textContent = p;
+    });
+}
+
+// EDIT
+function editStudent(s){
+  editRow = s._row;
+  surname.value = s.Surname;
+  firstname.value = s["First Name"];
+  middlename.value = s["Middle Name"];
+  dept.value = s.Dept;
+  year.value = s.Year;
+  section.value = s.Section;
+  entry.value = s.Entry;
+  prevschool.value = s["Prev School"];
+  birthdate.value = s.Birthdate;
+  status.value = s.Status;
+}
+
+// DELETE
+function deleteStudent(row){
+  if(confirm("Delete this student?")){
+    fetch(WEB_APP_URL,{
+      method:"POST",
+      headers:{"Content-Type":"application/json"},
+      body:JSON.stringify({action:"delete",row})
+    }).then(loadData);
+  }
+}
+
+// RESET
+function resetForm(){
+  form.reset();
+  editRow = null;
+}
+
+loadData();
 </script>
+
 </body>
 </html>
-
