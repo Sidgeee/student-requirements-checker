@@ -1,0 +1,615 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Enrollment System | Professional</title>
+
+<style>
+
+:root {
+
+  --green-primary: #2e7d32;
+  --green-hover: #1b5e20;
+  --bg-light: #f1f8e9;
+  --white: #ffffff;
+  --border-color: #cfd8dc;
+  --text-main: #37474f;
+  --shadow: 0 10px 30px rgba(0,0,0,0.08);
+  --red-missing: #d32f2f;
+  --blue-action: #0277bd;
+
+}
+
+* { box-sizing: border-box; }
+
+
+body {
+
+  margin: 0;
+  padding: 40px 20px;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  background-color: var(--bg-light);
+/* --- ADD THESE LINES --- */
+  background-image: url('cscqc.jpg'); 
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+/* ----------------------- */
+  background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('cscqc.jpg');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  color: var(--text-main);
+}
+
+
+
+.container {
+
+  max-width: 1200px;
+
+  margin: auto;
+
+  background: var(--white);
+
+  border-radius: 16px;
+
+  overflow: hidden;
+
+  box-shadow: var(--shadow);
+
+}
+
+
+
+.header {
+
+  font-size: 26px;
+
+  font-weight: 700;
+
+  color: white;
+
+  background: linear-gradient(135deg, var(--green-primary), #43a047);
+  padding: 30px;
+  text-align: center;
+  letter-spacing: 0.5px;
+
+}
+
+
+
+/* Tab Navigation */
+.tab-nav {
+  display: flex;
+  background: #f8fbf8;
+  border-bottom: 1px solid var(--border-color);
+
+}
+
+
+
+.tab-link {
+  flex: 1;
+  padding: 18px;
+  text-align: center;
+  cursor: pointer;
+  font-weight: 600;
+  color: #78909c;
+  transition: 0.3s;
+  border-bottom: 3px solid transparent;
+
+}
+
+
+
+.tab-link.active {
+  color: var(--green-primary);
+  border-bottom: 3px solid var(--green-primary);
+  background: white;
+
+}
+
+.tab-content { display: none; }
+.tab-content.active { display: block; }
+
+form { padding: 30px; }
+
+.section-title {
+
+  font-size: 19px;
+  font-weight: 700;
+  color: var(--green-primary);
+  margin: 25px 0 20px 0;
+  display: flex;
+  align-items: center;
+}
+
+
+
+.section-title::before {
+  content: "";
+  height: 24px; width: 5px; background: var(--green-primary);
+  margin-right: 12px; border-radius: 10px;
+}
+
+
+
+.grid {
+
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+  gap: 20px;
+
+}
+
+
+.input-group { display: flex; flex-direction: column; position: relative; }
+label.field-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #546e7a; }
+
+input, select {
+
+  padding: 12px 15px; border-radius: 8px;
+  border: 2px solid #eceff1; font-size: 15px; outline: none; transition: all 0.3s ease;
+
+}
+
+input:focus, select:focus {
+  border-color: var(--green-primary);
+  box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+}
+/* Search Bar with Button */
+
+.search-wrapper {
+  display: flex;
+  gap: 10px;
+  width: 100%;
+  position: relative;
+}
+
+
+
+.search-wrapper input {
+
+  flex: 1;
+
+}
+
+
+
+.btn-search {
+
+  background: var(--green-primary);
+  color: white;
+  border: none;
+  padding: 0 25px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background 0.2s;
+
+}
+
+
+
+.btn-search:hover {
+  background: var(--green-hover);
+
+}
+
+/* Quick Action Buttons */
+
+.quick-actions {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 15px;
+
+}
+
+
+
+.btn-fill {
+
+  padding: 8px 15px;
+  font-size: 12px;
+  background: var(--blue-action);
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: 0.2s;
+
+}
+
+
+
+.btn-fill:hover { background: #01579b; }
+
+
+
+/* Requirements Section */
+
+.requirements-grid {
+
+  display: grid;
+
+  grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+
+  gap: 12px;
+
+}
+
+
+
+.req-item {
+
+  display: flex; align-items: center; padding: 12px;
+
+  border: 2px solid #eceff1; border-radius: 10px; cursor: pointer;
+
+  transition: all 0.2s ease; font-size: 14px;
+
+}
+
+
+
+.req-item input { margin-right: 10px; cursor: pointer; }
+
+
+
+.req-item:has(input:checked) {
+
+  background-color: #f1f8e9; border-color: var(--green-primary); color: var(--green-primary); font-weight: 600;
+
+}
+
+
+
+.req-item.complete-all { background: #f1f8e9; border-color: #a5d6a7; }
+
+
+
+/* Update UI Dropdown */
+
+#resultsDropdown {
+
+  position: absolute; top: 100%; left: 0; width: calc(100% - 110px);
+
+  background: white; border: 1px solid var(--border-color);
+
+  border-radius: 8px; z-index: 100; max-height: 200px;
+
+  overflow-y: auto; display: none; box-shadow: var(--shadow);
+
+}
+
+
+
+.result-option { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; }
+
+.result-option:hover { background-color: var(--bg-light); }
+
+
+
+.update-container { display: grid; grid-template-columns: 1fr 380px; gap: 20px; padding: 20px; }
+
+.status-card { border: 1px solid #eee; border-radius: 12px; padding: 20px; background: #fff; }
+
+.status-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
+
+.status-tag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: #ffebee; color: var(--red-missing); }
+
+.status-tag.complete { background: #e8f5e9; color: var(--green-primary); }
+
+
+
+/* Buttons */
+
+.form-footer { margin-top: 40px; display: flex; align-items: center; gap: 20px; border-top: 1px solid #f0f0f0; padding-top: 20px; }
+
+button {
+
+  padding: 14px 40px; background: var(--green-primary); color: white; border: none;
+
+  border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s;
+
+}
+
+button:hover { background: var(--green-hover); transform: translateY(-2px); }
+
+button:disabled { background: #cfd8dc; cursor: not-allowed; transform: none; }
+
+
+
+@media (max-width: 900px) { .update-container { grid-template-columns: 1fr; } }
+
+</style>
+</head>
+<body>
+
+<div class="container">
+  <div class="header">CSCQC REGISTRAR - STUDENT ENROLLMENTS | REQUIREMENTS</div>
+
+  <div class="tab-nav">
+    <div class="tab-link active" onclick="openTab(event, 'enrollment')">New Enrollment</div>
+    <div class="tab-link" onclick="openTab(event, 'update')">Update Requirements</div>
+  </div>
+
+  <!-- TAB 1: NEW ENROLLMENT (UNTOUCHED) -->
+  <div id="enrollment" class="tab-content active">
+    <form id="studentForm">
+      <div class="section-title">Student Information</div>
+      <div class="grid">
+        <div class="input-group"><label class="field-label">Student ID</label><input name="studentNo" placeholder="e.g. 2024-0001" required></div>
+        <div class="input-group"><label class="field-label">Surname</label><input name="surname" placeholder="Surname"></div>
+        <div class="input-group"><label class="field-label">First Name</label><input name="firstname" placeholder="First Name"></div>
+        <div class="input-group"><label class="field-label">Middle Name</label><input name="middlename" placeholder="Middle Name"></div>
+        <div class="input-group"><label class="field-label">Gender</label><select name="gender"><option>Male</option><option>Female</option></select></div>
+        <div class="input-group"><label class="field-label">Year Level</label>
+          <select name="yearLevel" required><option value="">Select Level</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>CPE</option></select>
+        </div>
+        <div class="input-group"><label class="field-label">Course/Section</label><input name="section" placeholder="e.g. A, B, or 1-1"></div>
+        <div class="input-group"><label class="field-label">Academic Program</label>
+          <select name="program"><option>BSIT</option><option>BSBA</option><option>BSTM</option><option>BSCRIM</option><option>BSE-ENG</option><option>BEED</option><option>BSE-SOC</option><option>CPE</option></select>
+        </div>
+        <div class="input-group"><label class="field-label">Year of Entry</label><input name="yearEntry" placeholder="2024"></div>
+        <div class="input-group"><label class="field-label">Student Status</label><select name="status" id="enrollStatus"><option>Regular</option><option>Irregular</option></select></div>
+        <div class="input-group"><label class="field-label">Previous School</label><input name="previousSchool" placeholder="Name of school"></div>
+        <div class="input-group"><label class="field-label">Birthdate</label><input type="date" name="birthdate"></div>
+      </div>
+
+      <div class="section-title">Requirements Checklist</div>
+      <div class="requirements-grid">
+        <label class="req-item complete-all"><input type="checkbox" id="completeReq"><strong>All Required</strong></label>
+        <label class="req-item"><input type="checkbox" name="f138" value="YES"> Form 138</label>
+        <label class="req-item"><input type="checkbox" name="pic" value="YES"> 2x2 Picture</label>
+        <label class="req-item"><input type="checkbox" name="f137" value="YES"> Form 137</label>
+        <label class="req-item"><input type="checkbox" name="psa" value="YES"> PSA</label>
+        <label class="req-item"><input type="checkbox" name="gmc" value="YES"> Good Moral</label>
+        <label class="req-item"><input type="checkbox" name="dp" value="YES"> Diploma</label>
+        <label class="req-item"><input type="checkbox" name="tor" value="YES"> TOR</label>
+        <label class="req-item"><input type="checkbox" name="hd" value="YES"> Honorable Dismissal</label>
+        <div class="input-group"><input type="date" name="dateEnrolled" id="dateEnrolled"></div>
+      </div>
+
+      <div class="form-footer">
+        <button type="submit" id="saveBtn" disabled>Save Enrollment</button>
+        <div id="msg"></div>
+      </div>
+    </form>
+  </div>
+
+  <!-- TAB 2: UPDATE REQUIREMENTS -->
+  <div id="update" class="tab-content">
+    <div style="background: #fdfdfd; padding: 20px 30px; border-bottom: 1px solid #eee;">
+      <div class="input-group">
+        <label class="field-label">Search Student (ID or Name)</label>
+        <div class="search-wrapper">
+          <input type="text" id="updateSearch" placeholder="Start typing ID or Name..." autocomplete="off">
+          <button type="button" class="btn-search" onclick="triggerManualSearch()">SEARCH</button>
+          <div id="resultsDropdown"></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="update-container">
+      <div id="updateFormSection">
+        <div class="section-title">Checklist Update</div>
+        
+        <div class="quick-actions">
+           <button type="button" class="btn-fill" onclick="autoCheck('Regular')">Select Regular Requirements</button>
+           <button type="button" class="btn-fill" onclick="autoCheck('Irregular')">Select Irregular Requirements</button>
+           <button type="button" class="btn-fill" style="background:#78909c" onclick="autoCheck('Clear')">Clear All</button>
+        </div>
+
+        <div class="requirements-grid" style="grid-template-columns: 1fr 1fr;">
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_f138" onchange="syncPreview()"> Form 138</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_pic" onchange="syncPreview()"> 2x2 Picture</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_f137" onchange="syncPreview()"> Form 137</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_psa" onchange="syncPreview()"> PSA Certificate</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_gmc" onchange="syncPreview()"> Good Moral</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_dp" onchange="syncPreview()"> Diploma</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_tor" onchange="syncPreview()"> TOR</label>
+          <label class="req-item"><input type="checkbox" class="up-check" name="up_hd" onchange="syncPreview()"> Honorable Dismissal</label>
+        </div>
+        <button type="button" id="updateBtn" disabled style="margin-top: 30px;" onclick="submitUpdate()">Update Records</button>
+        <div id="updateMsg"></div>
+      </div>
+
+      <div class="status-card">
+        <h3 style="margin:0 0 15px 0; color: var(--green-primary); font-size: 18px;">Current Status</h3>
+        <div style="background: #fafafa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--green-primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05);">
+          <div id="prevFullName" style="font-weight: 800; text-transform: uppercase; font-size: 14px; color: #333;">---</div>
+          <div id="prevCourse" style="font-size: 12px; color: var(--blue-action); font-weight: 700; margin-top: 5px;">COURSE: ---</div>
+          <div id="prevID" style="font-size: 12px; color: #666; margin-top: 2px;">ID: ---</div>
+          <div id="prevStatus" style="display: inline-block; font-size: 10px; color: white; background: var(--green-primary); padding: 2px 8px; border-radius: 4px; font-weight: 800; margin-top: 8px;">TYPE: ---</div>
+        </div>
+        <div id="statusList">
+          <div class="status-row"><span>Form 138</span><span id="st_f138" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>2x2 Picture</span><span id="st_pic" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>Form 137</span><span id="st_f137" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>PSA Certificate</span><span id="st_psa" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>Good Moral</span><span id="st_gmc" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>Diploma</span><span id="st_dp" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>TOR</span><span id="st_tor" class="status-tag">MISSING</span></div>
+          <div class="status-row"><span>Honorable Dismissal</span><span id="st_hd" class="status-tag">MISSING</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbyz9byHhARc8f4B52lj2ax9XPcwZU211PIxd9t2I5sFmrGA1IOf2BYvDLfeBpv2ep_P/exec";
+  let activeStudentID = "";
+  let activeStudentCategory = "";
+  let searchTimeout = null;
+
+  function openTab(evt, tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    evt.currentTarget.classList.add('active');
+  }
+
+  // --- TAB 1 LOGIC (ORIGINAL) ---
+  const enrollForm = document.getElementById("studentForm");
+  const dateEnrolledInput = document.getElementById("dateEnrolled");
+  const saveBtn = document.getElementById("saveBtn");
+
+  dateEnrolledInput.addEventListener("input", () => { saveBtn.disabled = !dateEnrolledInput.value; });
+
+  document.getElementById("completeReq").addEventListener("change", (e) => {
+    const isChecked = e.target.checked;
+    const status = document.getElementById("enrollStatus").value;
+    ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd"].forEach(name => {
+        document.querySelector(`#enrollment input[name="${name}"]`).checked = false;
+    });
+    if(isChecked) {
+        if(status === "Regular") {
+            ["f138", "pic", "f137", "psa", "gmc", "dp"].forEach(name => {
+                document.querySelector(`#enrollment input[name="${name}"]`).checked = true;
+            });
+        } else {
+            ["tor", "hd", "psa", "gmc", "pic"].forEach(name => {
+                document.querySelector(`#enrollment input[name="${name}"]`).checked = true;
+            });
+        }
+    }
+  });
+
+  enrollForm.addEventListener("submit", e => {
+    e.preventDefault();
+    document.getElementById("msg").innerHTML = "⏳ Saving...";
+    fetch(scriptURL, { method: "POST", body: new FormData(enrollForm) })
+    .then(() => {
+      document.getElementById("msg").innerHTML = "✅ Saved Successfully!";
+      enrollForm.reset();
+      saveBtn.disabled = true;
+    }).catch(() => { document.getElementById("msg").innerHTML = "❌ Error."; });
+  });
+
+  // --- TAB 2 LOGIC (IMPROVED SEARCH & MAPPING) ---
+  const searchInput = document.getElementById('updateSearch');
+  searchInput.addEventListener('input', function() {
+      clearTimeout(searchTimeout);
+      const val = this.value.trim();
+      if (val.length >= 2) {
+          searchTimeout = setTimeout(() => fetchSuggestions(val), 300);
+      } else {
+          document.getElementById('resultsDropdown').style.display = "none";
+      }
+  });
+
+  function triggerManualSearch() {
+    const val = searchInput.value.trim();
+    if(val) fetchSuggestions(val);
+  }
+
+  async function fetchSuggestions(query) {
+    try {
+      const response = await fetch(`${scriptURL}?action=read&query=${encodeURIComponent(query)}`);
+      const res = await response.json();
+      if(res.result === "success" && res.data.length > 0) {
+        showDropdown(res.data);
+      } else {
+        document.getElementById('resultsDropdown').style.display = "none";
+      }
+    } catch(e) { console.error("Search error", e); }
+  }
+
+  function showDropdown(students) {
+    const dropdown = document.getElementById('resultsDropdown');
+    dropdown.innerHTML = "";
+    students.forEach(s => {
+      const div = document.createElement('div');
+      div.className = "result-option";
+      div.innerText = `[${s.studentNo}] ${s.surname}, ${s.firstname}`;
+      div.onclick = () => selectStudent(s);
+      dropdown.appendChild(div);
+    });
+    dropdown.style.display = "block";
+  }
+
+  function selectStudent(s) {
+    activeStudentID = s.studentNo;
+    activeStudentCategory = s.status;
+    document.getElementById('resultsDropdown').style.display = "none";
+    document.getElementById('updateSearch').value = `${s.surname}, ${s.firstname}`;
+
+    const mi = s.middlename ? s.middlename.charAt(0).toUpperCase() + "." : "";
+    const fullName = `${s.surname}, ${s.firstname} ${mi}`.toUpperCase();
+    
+    document.getElementById('prevFullName').innerText = `FULL NAME: ${fullName}`;
+    document.getElementById('prevCourse').innerText = `COURSE: ${s.program || 'N/A'}`;
+    document.getElementById('prevID').innerText = `ID: ${s.studentNo}`; 
+    document.getElementById('prevStatus').innerText = `TYPE: ${s.status.toUpperCase()}`;
+    
+    const fields = ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd"];
+    fields.forEach(f => {
+      const checkbox = document.querySelector(`input[name="up_${f}"]`);
+      checkbox.checked = (s[f] === "YES");
+    });
+    
+    syncPreview();
+    document.getElementById('updateBtn').disabled = false;
+    document.getElementById('updateMsg').innerHTML = "<span style='color:green'>✅ Student loaded.</span>";
+  }
+
+  function autoCheck(mode) {
+    const inputs = document.querySelectorAll('.up-check');
+    inputs.forEach(i => i.checked = false);
+    if (mode === "Regular") {
+        ["up_f138", "up_pic", "up_f137", "up_psa", "up_gmc", "up_dp"].forEach(name => {
+            const el = document.querySelector(`input[name="${name}"]`);
+            if(el) el.checked = true;
+        });
+    } else if (mode === "Irregular") {
+        ["up_tor", "up_hd", "up_psa", "up_gmc", "up_pic"].forEach(name => {
+            const el = document.querySelector(`input[name="${name}"]`);
+            if(el) el.checked = true;
+        });
+    }
+    syncPreview();
+  }
+
+  function syncPreview() {
+    const fields = ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd"];
+    fields.forEach(f => {
+      const checked = document.querySelector(`input[name="up_${f}"]`).checked;
+      const tag = document.getElementById(`st_${f}`);
+      tag.innerText = checked ? "COMPLETE" : "MISSING";
+      tag.className = checked ? "status-tag complete" : "status-tag";
+    });
+  }
+
+  async function submitUpdate() {
+    // We use FormData to ensure the parameters are parsed correctly by Google
+    const formData = new FormData();
+    formData.append("action", "update");
+    formData.append("studentNo", activeStudentID);
+    
+    ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd"].forEach(f => {
+      formData.append(f, document.querySelector(`input[name="up_${f}"]`).checked ? "YES" : "");
+    });
+
+    document.getElementById('updateMsg').innerHTML = "⏳ Updating...";
+
+    fetch(scriptURL, { 
+        method: "POST", 
+        body: formData,
+        mode: 'no-cors' // This bypasses the strict CORS check for simple POSTs
+    })
+    .then(() => {
+        document.getElementById('updateMsg').innerHTML = "✅ Update request sent!";
+        syncPreview(); 
+    })
+    .catch(() => document.getElementById('updateMsg').innerHTML = "❌ Error.");
+}
+</script>
+</body>
+</html>
