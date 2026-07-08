@@ -1,0 +1,2601 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CSCQC Registrar Dashboard</title>
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+
+  <style>
+    :root {
+      --green-primary: #2e7d32;
+      --green-hover: #1b5e20;
+      --green-light: #e8f5e9;
+      --bg-light: #f1f8e9;
+      --white: #ffffff;
+      --border-color: #cfd8dc;
+      --text-main: #37474f;
+      --shadow: 0 10px 30px rgba(0,0,0,0.08);
+      --red-missing: #d32f2f;
+      --blue-action: #0277bd;
+      --sidebar-width: 280px;
+    }
+
+    * { box-sizing: border-box; }
+
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+      background-image: linear-gradient(rgba(0, 0, 0, 0.4), rgba(0, 0, 0, 0.4)), url('cscqc.jpg');
+      background-size: cover;
+      background-position: center;
+      background-attachment: fixed;
+      background-repeat: no-repeat;
+      color: var(--text-main);
+      display: flex;
+      height: 100vh;
+      overflow: hidden;
+    }
+
+    /* ==========================================================================
+       SIDEBAR STYLES
+       ========================================================================== */
+    .sidebar {
+      width: var(--sidebar-width);
+      background: rgba(255, 255, 255, 0.98);
+      backdrop-filter: blur(20px);
+      border-right: 1px solid rgba(207, 216, 220, 0.6);
+      display: flex;
+      flex-direction: column;
+      z-index: 100;
+      flex-shrink: 0;
+      box-shadow: 4px 0 25px rgba(0,0,0,0.04);
+    }
+
+    .sidebar-brand {
+      padding: 24px;
+      font-size: 18px;
+      font-weight: 800;
+      color: var(--green-primary);
+      border-bottom: 1px solid #f0f4f5;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      letter-spacing: 0.75px;
+    }
+
+    .sidebar-brand i { font-size: 22px; }
+
+    .sidebar-mode-card {
+      padding: 14px 18px;
+      margin: 20px 16px 10px 16px;
+      background: linear-gradient(135deg, #f1f8e9, #e8f5e9);
+      border-radius: 10px;
+      border: 1px solid #c8e6c9;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .mode-badge {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      font-size: 11px;
+      font-weight: 800;
+      color: #1b5e20;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .mode-pulse-dot {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background-color: #4caf50;
+      box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7);
+      animation: pulse-green 2s infinite;
+    }
+
+    @keyframes pulse-green {
+      0 { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0.7); }
+      70% { transform: scale(1); box-shadow: 0 0 0 6px rgba(76, 175, 80, 0); }
+      100% { transform: scale(0.95); box-shadow: 0 0 0 0 rgba(76, 175, 80, 0); }
+    }
+
+    .btn-switch-account {
+      background: none;
+      border: none;
+      padding: 4px 8px;
+      color: var(--blue-action);
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      border-radius: 4px;
+      transition: all 0.2s ease;
+    }
+
+    .btn-switch-account:hover {
+      background-color: rgba(2, 119, 189, 0.08);
+      text-decoration: underline;
+    }
+
+    .sidebar-menu {
+      list-style: none;
+      padding: 10px 14px;
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin: 0;
+    }
+
+    .sidebar-menu li a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: #546e7a;
+      text-decoration: none;
+      font-weight: 600;
+      font-size: 14px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+    }
+
+    .sidebar-menu li a i {
+      font-size: 16px;
+      width: 20px;
+      text-align: center;
+      color: #90a4ae;
+      transition: color 0.2s ease;
+    }
+
+    .sidebar-menu li a:hover {
+      background-color: #f5f7f8;
+      color: #263238;
+    }
+
+    .sidebar-menu li a:hover i { color: #546e7a; }
+
+    .sidebar-menu li.active a {
+      background-color: var(--green-primary);
+      color: var(--white);
+      box-shadow: 0 4px 12px rgba(46, 125, 50, 0.25);
+    }
+
+    .sidebar-menu li.active a i { color: var(--white); }
+
+    .sidebar-footer-actions {
+      margin-top: auto;
+      padding: 14px;
+      border-top: 1px solid #f0f4f5;
+    }
+
+    .logout-item a {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 12px 16px;
+      color: #c62828;
+      text-decoration: none;
+      font-weight: 700;
+      font-size: 14px;
+      border-radius: 8px;
+      transition: all 0.2s ease;
+      cursor: pointer;
+    }
+
+    .logout-item a i { font-size: 16px; }
+
+    .logout-item a:hover {
+      background: #ffebee;
+      color: #b71c1c;
+    }
+
+    /* ==========================================================================
+       TOP BAR STYLES
+       ========================================================================== */
+    .top-bar {
+      height: 75px;
+      background: var(--white);
+      border-bottom: 1px solid rgba(207, 216, 220, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 0 32px;
+      flex-shrink: 0;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.02);
+    }
+
+    .page-title {
+      font-size: 20px;
+      font-weight: 700;
+      color: #263238;
+    }
+
+    .user-profile-widget {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      padding: 6px 14px;
+      border-radius: 50px;
+      background-color: #f8f9fa;
+      border: 1px solid #eceff1;
+      transition: all 0.2s ease;
+    }
+
+    .user-profile-widget:hover {
+      background-color: #f1f3f4;
+      border-color: #cfd8dc;
+    }
+
+    .user-info { text-align: right; }
+
+    .user-name {
+      font-weight: 700;
+      font-size: 13px;
+      color: #263238;
+      margin: 0;
+    }
+
+    .user-role {
+      font-size: 11px;
+      color: #78909c;
+      font-weight: 600;
+      margin: 2px 0 0 0;
+      text-transform: uppercase;
+      letter-spacing: 0.3px;
+    }
+
+    .avatar {
+      width: 38px;
+      height: 38px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--green-primary), #43a047);
+      color: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 700;
+      font-size: 13px;
+      box-shadow: 0 2px 6px rgba(46, 125, 50, 0.2);
+    }
+
+    .main-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      overflow-y: auto;
+    }
+
+    .dashboard-body {
+      padding: 32px;
+      flex: 1;
+    }
+
+    .view-section { display: none; }
+    .view-section.active-view { display: block; }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    .stat-card {
+      background-color: var(--white);
+      padding: 24px;
+      border-radius: 12px;
+      box-shadow: var(--shadow);
+      border: 1px solid var(--border-color);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .stat-info h3 {
+      font-size: 13px;
+      color: #78909c;
+      margin: 0 0 8px 0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .stat-info p {
+      font-size: 28px;
+      font-weight: 700;
+      margin: 0;
+    }
+
+    .stat-icon {
+      width: 48px;
+      height: 48px;
+      background-color: var(--bg-light);
+      color: var(--green-primary);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+    }
+
+    .dashboard-two-column {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 24px;
+      margin-bottom: 32px;
+    }
+
+    @media (max-width: 1024px) {
+      .dashboard-two-column { grid-template-columns: 1fr; }
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: auto;
+      background: var(--white);
+      border-radius: 16px;
+      overflow: hidden;
+      box-shadow: var(--shadow);
+    }
+
+    .header {
+      font-size: 22px;
+      font-weight: 700;
+      color: white;
+      background: linear-gradient(135deg, var(--green-primary), #43a047);
+      padding: 24px;
+      text-align: center;
+      letter-spacing: 0.5px;
+    }
+
+    .tab-nav {
+      display: flex;
+      background: #f8fbf8;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .tab-link {
+      flex: 1;
+      padding: 18px;
+      text-align: center;
+      cursor: pointer;
+      font-weight: 600;
+      color: #78909c;
+      transition: 0.3s;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tab-link.active {
+      color: var(--green-primary);
+      border-bottom: 3px solid var(--green-primary);
+      background: white;
+    }
+
+    .tab-content { display: none; }
+    .tab-content.active { display: block; }
+
+    form { padding: 30px; }
+
+    .section-title {
+      font-size: 19px;
+      font-weight: 700;
+      color: var(--green-primary);
+      margin: 25px 0 20px 0;
+      display: flex;
+      align-items: center;
+    }
+
+    .section-title::before {
+      content: "";
+      height: 24px; width: 5px; background: var(--green-primary);
+      margin-right: 12px; border-radius: 10px;
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+      gap: 20px;
+    }
+
+    .input-group { display: flex; flex-direction: column; position: relative; }
+    label.field-label { font-size: 13px; font-weight: 600; margin-bottom: 6px; color: #546e7a; }
+
+    input, select {
+      padding: 12px 15px; border-radius: 8px;
+      border: 2px solid #eceff1; font-size: 15px; outline: none; transition: all 0.3s ease;
+    }
+
+    input:focus, select:focus {
+      border-color: var(--green-primary);
+      box-shadow: 0 0 0 4px rgba(46, 125, 50, 0.1);
+    }
+
+    .search-wrapper {
+      display: flex;
+      gap: 10px;
+      width: 100%;
+      position: relative;
+    }
+
+    .search-wrapper input { flex: 1; }
+
+    .btn-search {
+      background: var(--green-primary);
+      color: white;
+      border: none;
+      padding: 0 25px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .btn-search:hover { background: var(--green-hover); }
+
+    .quick-actions { display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap; }
+
+    .btn-fill {
+      padding: 8px 15px;
+      font-size: 12px;
+      background: var(--blue-action);
+      color: white;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 600;
+      transition: 0.2s;
+    }
+
+    .btn-fill:hover { background: #01579b; }
+
+    .requirements-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+      gap: 12px;
+    }
+
+    .req-item {
+      display: flex; align-items: center; padding: 12px;
+      border: 2px solid #eceff1; border-radius: 10px; cursor: pointer;
+      transition: all 0.2s ease; font-size: 14px; background: #fff;
+    }
+
+    .req-item input { margin-right: 10px; cursor: pointer; }
+
+    .req-item:has(input:checked) {
+      background-color: #f1f8e9; border-color: var(--green-primary); color: var(--green-primary); font-weight: 600;
+    }
+
+    .req-item.complete-all { background: #f1f8e9; border-color: #a5d6a7; }
+
+    #resultsDropdown {
+      position: absolute; top: 100%; left: 0; width: calc(100% - 110px);
+      background: white; border: 1px solid var(--border-color);
+      border-radius: 8px; z-index: 100; max-height: 200px;
+      overflow-y: auto; display: none; box-shadow: var(--shadow);
+      animation: fadeIn 0.2s ease-in-out;
+    }  
+
+    @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(-10px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    .result-option { padding: 10px 15px; cursor: pointer; border-bottom: 1px solid #eee; font-size: 14px; }
+    .result-option:hover { background-color: var(--bg-light); }
+
+    .update-container { display: grid; grid-template-columns: 1fr 380px; gap: 20px; padding: 20px; }
+    .status-card { border: 1px solid #eee; border-radius: 12px; padding: 20px; background: #fff; }
+    .status-row { display: flex; justify-content: space-between; padding: 10px 0; border-bottom: 1px dashed #eee; font-size: 13px; }
+    .status-tag { font-size: 10px; font-weight: 800; padding: 2px 8px; border-radius: 4px; background: #ffebee; color: var(--red-missing); }
+    .status-tag.complete { background: #e8f5e9; color: var(--green-primary); }
+
+    .form-footer { margin-top: 40px; display: flex; align-items: center; gap: 20px; border-top: 1px solid #f0f0f0; padding-top: 20px; }
+
+    button {
+      padding: 14px 40px; background: var(--green-primary); color: white; border: none;
+      border-radius: 8px; font-size: 16px; font-weight: 600; cursor: pointer; transition: transform 0.2s, background 0.2s;
+    }
+    button:hover { background: var(--green-hover); transform: translateY(-2px); }
+    button:disabled { background: #cfd8dc; cursor: not-allowed; transform: none; }
+
+    @media (max-width: 900px) { .update-container { grid-template-columns: 1fr; } }
+
+    .db-controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 20px 30px;
+      background: #fdfdfd;
+      border-bottom: 1px solid #eee;
+      gap: 15px;
+      flex-wrap: wrap;
+    }
+
+    .db-search {
+      max-width: 400px;
+      flex: 1;
+    }
+
+    .btn-add-student {
+      background: var(--blue-action);
+      color: #fff;
+      border: none;
+      padding: 10px 20px;
+      font-size: 14px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      transition: all 0.2s;
+    }
+
+    .btn-add-student:hover { background: #01579b; }
+
+    .db-filter-select {
+      padding: 10px 14px;
+      border: 1px solid var(--border-color);
+      border-radius: 8px;
+      font-size: 13px;
+      font-weight: 600;
+      color: #455a64;
+      background: #fff;
+      cursor: pointer;
+    }
+    .db-filter-select:focus { outline: 2px solid #c8e6c9; }
+
+    .qr-print-dropdown-wrap { position: relative; }
+    .btn-print-qr {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: var(--green-primary); color: #fff; border: none;
+      padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+    }
+    .btn-print-qr:hover { background: var(--green-hover); }
+    .qr-print-menu {
+      display: none;
+      position: absolute;
+      right: 0; top: calc(100% + 6px);
+      background: #fff; border: 1px solid var(--border-color); border-radius: 10px;
+      box-shadow: var(--shadow); min-width: 240px; z-index: 500;
+      padding: 8px; max-height: 380px; overflow-y: auto;
+    }
+    .qr-print-menu.open { display: block; }
+    .qr-print-menu .menu-item {
+      padding: 9px 12px; font-size: 13px; font-weight: 600; color: #37474f;
+      border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 8px;
+    }
+    .qr-print-menu .menu-item:hover { background: #f1f8e9; color: var(--green-primary); }
+    .qr-print-menu .menu-label {
+      font-size: 10px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px;
+      color: #90a4ae; padding: 10px 12px 4px 12px;
+    }
+    .qr-print-menu .menu-divider { height: 1px; background: #eceff1; margin: 6px 4px; }
+
+    .table-responsive {
+      overflow-x: auto;
+      padding: 0 30px 30px 30px;
+    }
+
+    .student-table {
+      width: 100%;
+      border-collapse: collapse;
+      margin-top: 20px;
+      font-size: 14px;
+    }
+
+    .student-table th {
+      background-color: #fafafa;
+      color: #546e7a;
+      font-weight: 700;
+      text-align: left;
+      padding: 14px 16px;
+      border-bottom: 2px solid var(--border-color);
+    }
+
+    .student-table td {
+      padding: 14px 16px;
+      border-bottom: 1px solid #eceff1;
+      color: #37474f;
+    }
+
+    .student-table tr:hover { background-color: #f8fbf8; }
+
+    .student-table th.sortable-th { cursor: pointer; user-select: none; white-space: nowrap; }
+    .student-table th.sortable-th:hover { color: var(--green-primary); }
+    .sort-arrow { font-size: 10px; color: var(--green-primary); }
+
+    .row-select-checkbox, #selectAllCheckbox { width: 16px; height: 16px; cursor: pointer; }
+
+    .qr-clickable-hint {
+      font-size: 11px; color: #90a4ae; margin-top: 6px; font-style: italic;
+    }
+    #viewQRContainer.clickable { cursor: pointer; transition: transform 0.15s ease; }
+    #viewQRContainer.clickable:hover { transform: scale(1.03); }
+
+    .info-modal-row {
+      display: flex; justify-content: space-between; padding: 9px 0;
+      border-bottom: 1px solid #eceff1; font-size: 13px;
+    }
+    .info-modal-row:last-child { border-bottom: none; }
+    .info-modal-row .info-label { color: #78909c; font-weight: 700; }
+    .info-modal-row .info-value { color: #263238; font-weight: 700; text-align: right; }
+    .info-modal-req-grid {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 6px 14px; margin-top: 10px;
+    }
+
+    .badge-status {
+      padding: 4px 10px;
+      border-radius: 12px;
+      font-size: 11px;
+      font-weight: 700;
+      text-transform: uppercase;
+      cursor: pointer;
+      user-select: none;
+      display: inline-flex;
+      align-items: center;
+      gap: 4px;
+    }
+
+    .badge-status.active-tag { background: #e8f5e9; color: var(--green-primary); border: 1px solid #c8e6c9; }
+    .badge-status.inactive-tag { background: #ffebee; color: var(--red-missing); border: 1px solid #ffcdd2; }
+
+    .badge-category {
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: 700;
+      background: #f0f4f8;
+      color: #2b6cb0;
+      border: 1px solid #e2e8f0;
+    }
+
+    .action-links { display: flex; gap: 12px; }
+
+    .act-btn {
+      background: none;
+      border: none;
+      padding: 0;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+    }
+    .act-btn.update-req { color: var(--green-primary); }
+    .act-btn.update-req:hover { text-decoration: underline; }
+
+    .qr-action-links { display: flex; flex-direction: column; gap: 6px; }
+    .qr-act-btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      gap: 6px;
+      border: none;
+      border-radius: 6px;
+      padding: 5px 10px;
+      font-size: 11px;
+      font-weight: 700;
+      cursor: pointer;
+      white-space: nowrap;
+      transition: filter 0.15s ease;
+    }
+    .qr-act-btn:hover { filter: brightness(0.92); }
+    .qr-act-btn.enroll-btn { background: #e3f2fd; color: var(--blue-action); border: 1px solid #bbdefb; }
+    .qr-act-btn.force-qr-btn { background: #e8f5e9; color: var(--green-primary); border: 1px solid #c8e6c9; }
+    .qr-act-btn.force-qr-btn:disabled { opacity: 0.6; cursor: not-allowed; filter: none; }
+    .qr-act-btn.view-qr-btn { background: #fff3e0; color: #e65100; border: 1px solid #ffe0b2; }
+
+    .btn-bulk-enroll {
+      display: inline-flex; align-items: center; gap: 8px;
+      background: #455a64; color: #fff; border: none;
+      padding: 10px 18px; border-radius: 8px;
+      font-size: 13px; font-weight: 700; cursor: pointer;
+      margin-left: 10px;
+    }
+    .btn-bulk-enroll:hover { background: #37474f; }
+
+    .bulk-log { max-height: 160px; overflow-y: auto; background: #f7f9fa; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px; font-size: 12px; margin-top: 12px; font-family: monospace; }
+    .bulk-log div.ok { color: #2e7d32; }
+    .bulk-log div.fail { color: #d32f2f; }
+
+    .report-table-wrap { margin-top: 20px; overflow-x: auto; }
+    .report-table { width: 100%; border-collapse: collapse; font-size: 13px; }
+    .report-table th, .report-table td { padding: 8px 10px; border-bottom: 1px solid #f0f4f5; text-align: left; }
+    .report-table th { background: #f1f8e9; color: var(--green-primary); font-weight: 800; }
+
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 2000; opacity: 0; pointer-events: none;
+      transition: opacity 0.3s ease;
+    }
+    .modal-overlay.open { opacity: 1 !important; pointer-events: auto !important; }
+    .modal-box {
+      background: white; width: 90%; max-width: 450px;
+      border-radius: 12px; padding: 25px; box-shadow: var(--shadow);
+      transform: translateY(-20px); transition: transform 0.3s ease;
+    }
+    .modal-overlay.open .modal-box { transform: translateY(0); }
+    .modal-header {
+      font-size: 18px; font-weight: 700; color: var(--green-primary);
+      margin-bottom: 15px; border-bottom: 1px solid #eee; padding-bottom: 10px;
+    }
+    .modal-body { margin-bottom: 20px; }
+    .modal-footer { display: flex; justify-content: flex-end; gap: 10px; }
+    .modal-btn {
+      padding: 10px 20px; border-radius: 6px; font-size: 14px; font-weight: 600; cursor: pointer; border: none;
+    }
+    .modal-btn.cancel { background: #eceff1; color: #37474f; }
+    .modal-btn.save { background: var(--green-primary); color: white; }
+
+    #loginOverlay {
+      background: rgba(43, 94, 46, 0.35);
+      backdrop-filter: blur(25px);
+    }
+    #loginOverlay .modal-box {
+      max-width: 400px;
+      padding: 35px 30px;
+      border: 1px solid rgba(255,255,255,0.2);
+    }
+
+    .loader {
+      text-align: center;
+      padding: 40px;
+      font-weight: 600;
+      color: #78909c;
+    }
+
+    .system-footer {
+      width: 100%; text-align: center; padding: 25px 0; color: white;
+      font-size: 14px; font-weight: 500; letter-spacing: 1px; margin-top: auto;
+    }
+    .system-footer p { margin: 0; text-shadow: 0px 2px 4px rgba(0, 0, 0, 0.8); opacity: 0.9; }
+
+    .login-toggle-link {
+      display: block;
+      text-align: center;
+      font-size: 13px;
+      color: var(--blue-action);
+      margin-top: 15px;
+      cursor: pointer;
+      font-weight: 600;
+      text-decoration: none;
+    }
+    .login-toggle-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <aside class="sidebar">
+    <div class="sidebar-brand">
+      <i class=""></i> CSCQC REGISTRAR
+    </div>
+
+    <div class="sidebar-mode-card">
+      <div class="mode-badge">
+        <span class="mode-pulse-dot"></span>
+        <span id="sbRole">Admin Account</span>
+      </div>
+      <button class="btn-switch-account" onclick="triggerSessionLoginModal()">
+        <i class="fa-solid fa-user-gear"></i> Switch
+      </button>
+    </div>
+
+    <ul class="sidebar-menu">
+      <li class="active" data-target="home-view">
+        <a><i class="fa-solid fa-house"></i> Home Dashboard</a>
+      </li>
+      <li data-target="enrollment-view">
+        <a><i class="fa-solid fa-user-plus"></i> Enrollments Entry</a>
+      </li>
+      <li data-target="students-view">
+        <a><i class="fa-solid fa-users"></i> Student Master List</a>
+      </li>
+      <li data-target="ched-reports-view">
+        <a><i class="fa-solid fa-file-invoice"></i> CHED Reports</a>
+      </li>
+    </ul>
+
+    <div class="sidebar-footer-actions">
+      <div class="logout-item">
+        <a onclick="executeSessionLogout()"><i class="fa-solid fa-power-off"></i> Log Out Account</a>
+      </div>
+    </div>
+  </aside>
+
+  <main class="main-content">
+    
+    <header class="top-bar">
+      <div class="page-title" id="dynamic-title">Home Dashboard</div>
+      
+      <div class="user-profile-widget">
+        <div class="user-info">
+          <p class="user-name" id="topHeaderName">System Administrator</p>
+          <p class="user-role" id="topHeaderRole">Registrar Office</p>
+        </div>
+        <div class="avatar" id="topHeaderAvatar">SA</div>
+      </div>
+    </header>
+
+    <div class="dashboard-body">
+
+      <section id="home-view" class="view-section active-view">
+        <div class="stats-grid">
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Total Enrolled Records</h3>
+              <p>1,245</p>
+            </div>
+            <div class="stat-icon"><i class="fa-solid fa-user-check"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Incomplete Requirements</h3>
+              <p>42</p>
+            </div>
+            <div class="stat-icon" style="background-color: #ffebee; color: var(--red-missing);"><i class="fa-solid fa-file-circle-exclamation"></i></div>
+          </div>
+          <div class="stat-card">
+            <div class="stat-info">
+              <h3>Information Technology (BSIT)</h3>
+              <p>412</p>
+            </div>
+            <div class="stat-icon" style="background-color: #e1f5fe; color: var(--blue-action);"><i class="fa-solid fa-laptop-code"></i></div>
+          </div>
+        </div>
+
+        <div class="dashboard-two-column">
+          <div class="container" style="padding: 35px; margin: 0;">
+            <h2 style="color: var(--green-primary); margin-top: 0;">System Information Management Command</h2>
+            <p style="color: var(--text-main); line-height: 1.6; font-size: 15px;">
+              Welcome back. Use the navigation panel on the left to process new registrations, search existing system archives, or complete requirement audit validation checks.
+            </p>
+            <hr style="border: 0; border-top: 1px solid #eee; margin: 20px 0;">
+            <p style="font-size: 13px; color: #78909c;">
+              <i class="fa-solid fa-circle-info"></i> Chart metrics update instantly when database records change.
+            </p>
+          </div>
+
+          <div class="container" style="padding: 30px; margin: 0; display: flex; flex-direction: column;">
+            <h3 style="color: var(--text-main); margin-top: 0; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;">
+              <i class="fa-solid fa-chart-bar" style="color: var(--green-primary)"></i> Course Enrollment Breakdown
+            </h3>
+            <div style="position: relative; flex: 1; min-height: 220px; width: 100%;">
+              <canvas id="courseMetricsChart"></canvas>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="enrollment-view" class="view-section">
+        <div class="container">
+          <div class="header">CSCQC REGISTRAR - STUDENT ENROLLMENTS | REQUIREMENTS</div>
+
+          <div class="tab-nav">
+            <div class="tab-link active" onclick="openTab(event, 'enrollment')">New Enrollment</div>
+            <div class="tab-link" onclick="openTab(event, 'update')">Update Requirements</div>
+          </div>
+
+          <div id="enrollment" class="tab-content active">
+            <form id="studentForm">
+              <input type="hidden" name="action" value="enroll">
+              <div class="section-title">Student Information</div>
+              <div class="grid">
+                <div class="input-group"><label class="field-label">Student ID</label><input name="studentNo" placeholder="e.g. 2024-0001" required></div>
+                <div class="input-group"><label class="field-label">Surname</label><input name="surname" placeholder="Surname"></div>
+                <div class="input-group"><label class="field-label">First Name</label><input name="firstname" placeholder="First Name"></div>
+                <div class="input-group"><label class="field-label">Middle Name</label><input name="middlename" placeholder="Middle Name"></div>
+                <div class="input-group"><label class="field-label">Gender</label><select name="gender"><option>Male</option><option>Female</option></select></div>
+                <div class="input-group"><label class="field-label">Year Level</label>
+                  <select name="yearLevel" required><option value="">Select Level</option><option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>CPE</option></select>
+                </div>
+                <div class="input-group"><label class="field-label">Course/Section</label><input name="section" placeholder="e.g. A, B, or 1-1"></div>
+                <div class="input-group"><label class="field-label">Academic Program</label>
+                  <select name="program"><option>BSIT</option><option>BSBA</option><option>BSTM</option><option>BSCRIM</option><option>BSE-ENG</option><option>BEED</option><option>BSE-SOC</option><option>CPE</option></select>
+                </div>
+                <div class="input-group"><label class="field-label">Year of Entry</label><input name="yearEntry" placeholder="2024"></div>
+                <div class="input-group"><label class="field-label">Student Status</label><select name="status" id="enrollStatus"><option>Regular</option><option>Irregular</option></select></div>
+                <div class="input-group"><label class="field-label">Previous School</label><input name="previousSchool" placeholder="Name of school"></div>
+                <div class="input-group"><label class="field-label">Birthdate</label><input type="date" name="birthdate"></div>
+              </div>
+
+              <div class="section-title">Requirements Checklist</div>
+              <div class="requirements-grid">
+                <label class="req-item complete-all"><input type="checkbox" id="completeReq"><strong>All Regular</strong></label>
+                <label class="req-item"><input type="checkbox" name="f138" value="YES"> Form 138</label>
+                <label class="req-item"><input type="checkbox" name="pic" value="YES"> 2x2 Picture</label>
+                <label class="req-item"><input type="checkbox" name="f137" value="YES"> Form 137</label>
+                <label class="req-item"><input type="checkbox" name="psa" value="YES"> PSA</label>
+                <label class="req-item"><input type="checkbox" name="gmc" value="YES"> Good Moral</label>
+                <label class="req-item"><input type="checkbox" name="dp" value="YES"> Diploma</label>
+                <label class="req-item"><input type="checkbox" name="tor" value="YES"> TOR</label>
+                <label class="req-item"><input type="checkbox" name="hd" value="YES"> Honorable Dismissal</label>
+                <label class="req-item"><input type="checkbox" name="cog" value="YES"> Certificate of Grade</label>
+                <label class="req-item"><input type="checkbox" name="evalcopy" value="YES"> Evaluation Copy</label>
+                <div class="input-group"><input type="date" name="dateEnrolled" id="dateEnrolled"></div>
+              </div>
+
+              <div class="form-footer">
+                <button type="submit" id="saveBtn" disabled>Save Enrollment</button>
+                <div id="msg"></div>
+              </div>
+            </form>
+          </div>
+
+          <div id="update" class="tab-content">
+            <div style="background: #fdfdfd; padding: 20px 30px; border-bottom: 1px solid #eee;">
+              <div class="input-group">
+                <label class="field-label">Search Student (ID or Name)</label>
+                <div class="search-wrapper">
+                  <input type="text" id="updateSearch" placeholder="Start typing ID or Name..." autocomplete="off">
+                  <button type="button" class="btn-search" onclick="triggerManualSearch()">SEARCH</button>
+                  <div id="resultsDropdown"></div>
+                </div>
+              </div>
+            </div>
+
+            <div class="update-container">
+              <div id="updateFormSection">
+                <div class="section-title">Checklist Update</div>
+                
+                <div class="quick-actions">
+                   <button type="button" class="btn-fill" onclick="autoCheck('Regular')">Select Regular Requirements</button>
+                   <button type="button" class="btn-fill" onclick="autoCheck('Irregular')">Select Irregular Requirements</button>
+                   <button type="button" class="btn-fill" style="background:#78909c" onclick="autoCheck('Clear')">Clear All</button>
+                   <button type="button" class="btn-fill" style="background:#d32f2f" onclick="refreshStudent()">Refresh</button>
+                </div>
+
+                <div class="requirements-grid" style="grid-template-columns: 1fr 1fr;">
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_f138" onchange="syncPreview()"> Form 138</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_pic" onchange="syncPreview()"> 2x2 Picture</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_f137" onchange="syncPreview()"> Form 137</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_psa" onchange="syncPreview()"> PSA Certificate</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_gmc" onchange="syncPreview()"> Good Moral</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_dp" onchange="syncPreview()"> Diploma</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_tor" onchange="syncPreview()"> TOR</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_hd" onchange="syncPreview()"> Honorable Dismissal</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_cog" onchange="syncPreview()"> Certificate of Grade</label>
+                  <label class="req-item"><input type="checkbox" class="up-check" name="up_evalcopy" onchange="syncPreview()"> Evaluation Copy</label>
+                </div>
+                <button type="button" id="updateBtn" disabled style="margin-top: 30px;" onclick="submitUpdate()">Update Records</button>
+                <div id="updateMsg"></div>
+              </div>
+
+              <div class="status-card">
+                <h3 style="margin:0 0 15px 0; color: var(--green-primary); font-size: 18px;">Current Status</h3>
+                <div style="background: #fafafa; padding: 15px; border-radius: 8px; margin-bottom: 15px; border-left: 5px solid var(--green-primary); box-shadow: 0 2px 5px rgba(0,0,0,0.05); text-align: center;">
+                  <div id="prevFullName" style="font-weight: 800; text-transform: uppercase; font-size: 14px; color: #333; text-align: left;">---</div>
+                  <div id="prevCourse" style="font-size: 12px; color: var(--blue-action); font-weight: 700; margin-top: 5px; text-align: left;">COURSE: ---</div>
+                  <div id="prevID" style="font-size: 12px; color: #666; margin-top: 2px; text-align: left;">ID: ---</div>
+                  <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 8px;">
+                    <div id="prevStatus" style="font-size: 10px; color: white; background: var(--green-primary); padding: 2px 8px; border-radius: 4px; font-weight: 800;">TYPE: ---</div>
+                  </div>
+                  
+                  <div id="qrcode-container" style="margin-top: 15px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;">
+                    <div id="studentQRCode" style="padding: 10px; background: white; border: 1px solid #ddd; border-radius: 4px; min-height: 128px; min-width: 128px; display: inline-flex; align-items: center; justify-content: center;">
+                      <span style="font-size: 11px; color: #aaa;">No Profile Selected</span>
+                    </div>
+                    <button type="button" class="btn-fill" style="padding: 4px 10px; font-size: 11px; background:#455a64;" onclick="printQRCode()">Print QR</button>
+                  </div>
+                </div>
+
+                <div id="statusList">
+                  <div class="status-row"><span>Form 138</span><span id="st_f138" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>2x2 Picture</span><span id="st_pic" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>Form 137</span><span id="st_f137" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>PSA Certificate</span><span id="st_psa" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>Good Moral</span><span id="st_gmc" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>Diploma</span><span id="st_dp" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>TOR</span><span id="st_tor" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>Honorable Dismissal</span><span id="st_hd" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>Certificate of Grade</span><span id="st_cog" class="status-tag">MISSING</span></div>
+                  <div class="status-row"><span>Evaluation Copy</span><span id="st_evalcopy" class="status-tag">MISSING</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section id="students-view" class="view-section">
+        <div class="container">
+          <div class="header">LIST OF CSCQC STUDENTS</div>
+          
+          <div class="db-controls">
+            <div class="input-group db-search">
+              <input type="text" id="tableSearchInput" placeholder="🔍 Search by student number, surname, course..." oninput="applyTableFiltersAndSearch()">
+            </div>
+            <select class="db-filter-select" id="filterProgram" onchange="applyTableFiltersAndSearch()">
+              <option value="ALL">All Courses</option>
+              <option>BSIT</option><option>BSBA</option><option>BSTM</option><option>BSCRIM</option>
+              <option>BSE-ENG</option><option>BEED</option><option>BSE-SOC</option><option>CPE</option>
+            </select>
+            <select class="db-filter-select" id="filterYearLevel" onchange="applyTableFiltersAndSearch()">
+              <option value="ALL">All Year Levels</option>
+              <option>1st Year</option><option>2nd Year</option><option>3rd Year</option><option>4th Year</option><option>CPE</option>
+            </select>
+            <select class="db-filter-select" id="filterStatus" onchange="applyTableFiltersAndSearch()">
+              <option value="ALL">All Status</option>
+              <option value="Active">Active</option>
+              <option value="Inactive">Inactive</option>
+            </select>
+            <button class="btn-add-student" onclick="navigateToRegistration()">
+              <i class="fa-solid fa-user-plus"></i> Add Student
+            </button>
+            <button class="btn-bulk-enroll" onclick="openBulkEnrollModal()">
+              <i class="fa-solid fa-people-group"></i> Bulk Enroll
+            </button>
+            <div class="qr-print-dropdown-wrap">
+              <button class="btn-print-qr" onclick="toggleQRPrintMenu(event)">
+                <i class="fa-solid fa-print"></i> Print QR Codes <i class="fa-solid fa-caret-down"></i>
+              </button>
+              <div class="qr-print-menu" id="qrPrintMenu">
+                <div class="menu-item" onclick="printSelectedQRs()">
+                  <i class="fa-solid fa-check-double"></i> Print Selected (<span id="selectedCountLabel">0</span>)
+                </div>
+                <div class="menu-item" onclick="printAllFilteredQRs()">
+                  <i class="fa-solid fa-layer-group"></i> Print All (Current View)
+                </div>
+                <div class="menu-divider"></div>
+                <div class="menu-label">By Department</div>
+                <div id="printByDeptList"></div>
+                <div class="menu-divider"></div>
+                <div class="menu-label">By Year Level</div>
+                <div id="printByYearList"></div>
+              </div>
+            </div>
+          </div>
+
+          <div class="table-responsive">
+            <div id="tableLoader" class="loader">⏳ Loading registry data files directly from spreadsheet cloud service...</div>
+            <table class="student-table" id="masterTable" style="display: none;">
+              <thead>
+                <tr>
+                  <th style="width:36px;"><input type="checkbox" id="selectAllCheckbox" onchange="toggleSelectAll(this.checked)"></th>
+                  <th class="sortable-th" onclick="sortByColumn('studentNo')">Student No <span class="sort-arrow" id="sort-studentNo"></span></th>
+                  <th class="sortable-th" onclick="sortByColumn('surname')">Surname <span class="sort-arrow" id="sort-surname"></span></th>
+                  <th class="sortable-th" onclick="sortByColumn('firstname')">First Name <span class="sort-arrow" id="sort-firstname"></span></th>
+                  <th>Middle Name</th>
+                  <th class="sortable-th" onclick="sortByColumn('program')">Course <span class="sort-arrow" id="sort-program"></span></th>
+                  <th class="sortable-th" onclick="sortByColumn('yearLevel')">Year Level <span class="sort-arrow" id="sort-yearLevel"></span></th>
+                  <th>Category</th>
+                  <th>Status</th>
+                  <th>Action</th>
+                  <th>QR Actions</th>
+                </tr>
+              </thead>
+              <tbody id="studentTableBody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+
+      <section id="ched-reports-view" class="view-section">
+        <div class="container">
+          <div class="header">CHED ACADEMIC REPORTING & ENCODING SYSTEM</div>
+          <div style="padding: 35px; background: white;">
+            <h2 style="color: var(--green-primary); margin-top: 0; font-size: 20px;">Encode institutional School Reports</h2>
+            <p style="color: var(--text-main); line-height: 1.6; font-size: 15px; margin-bottom: 25px;">
+              Generate a report sheet for a target institutional program straight from the currently loaded Student Master List data.
+            </p>
+
+            <div style="display:flex; gap:14px; flex-wrap:wrap; align-items:flex-end;">
+              <div class="input-group" style="min-width:220px;">
+                <label class="field-label">Program / Department</label>
+                <select id="reportProgramSelect">
+                  <option value="ALL">All Programs</option>
+                  <option>BSIT</option><option>BSBA</option><option>BSTM</option><option>BSCRIM</option>
+                  <option>BSE-ENG</option><option>BEED</option><option>BSE-SOC</option><option>CPE</option>
+                </select>
+              </div>
+              <div class="input-group" style="min-width:200px;">
+                <label class="field-label">Category</label>
+                <select id="reportCategorySelect">
+                  <option value="ALL">All Categories</option>
+                  <option>Regular</option>
+                  <option>Irregular</option>
+                </select>
+              </div>
+              <div class="input-group" style="min-width:180px;">
+                <label class="field-label">System Status</label>
+                <select id="reportStatusSelect">
+                  <option value="ALL">All Status</option>
+                  <option value="Active">Active</option>
+                  <option value="Inactive">Inactive</option>
+                </select>
+              </div>
+              <button class="btn-add-student" onclick="generateChedReport()">
+                <i class="fa-solid fa-file-circle-check"></i> Generate Report
+              </button>
+              <button class="btn-bulk-enroll" onclick="downloadChedReportCSV()">
+                <i class="fa-solid fa-download"></i> Download CSV
+              </button>
+            </div>
+
+            <div class="input-group" style="margin-top:18px; max-width:400px;">
+              <label class="field-label">Search Generated Report</label>
+              <input type="text" id="chedReportSearchInput" placeholder="🔍 Search student no, name, course..." oninput="applyChedSearchAndSort()">
+            </div>
+
+            <div id="chedReportSummary" style="margin-top:14px; font-size:13px; color:#546e7a;"></div>
+            <div class="report-table-wrap">
+              <table class="report-table" id="chedReportTable" style="display:none;">
+                <thead>
+                  <tr>
+                    <th class="sortable-th" onclick="sortChedColumn('studentNo')">Student No <span class="sort-arrow" id="chedsort-studentNo"></span></th>
+                    <th class="sortable-th" onclick="sortChedColumn('surname')">Surname <span class="sort-arrow" id="chedsort-surname"></span></th>
+                    <th class="sortable-th" onclick="sortChedColumn('firstname')">First Name <span class="sort-arrow" id="chedsort-firstname"></span></th>
+                    <th>Middle Name</th>
+                    <th class="sortable-th" onclick="sortChedColumn('program')">Course <span class="sort-arrow" id="chedsort-program"></span></th>
+                    <th class="sortable-th" onclick="sortChedColumn('status')">Category <span class="sort-arrow" id="chedsort-status"></span></th>
+                    <th>System Status</th>
+                  </tr>
+                </thead>
+                <tbody id="chedReportTableBody"></tbody>
+              </table>
+              <div id="chedReportEmpty" style="border: 2px dashed var(--border-color); border-radius: 12px; padding: 40px; text-align: center; color: #78909c; font-weight: 600; margin-top:10px;">
+                <i class="fa-solid fa-folder-open" style="font-size: 42px; color: var(--green-primary); margin-bottom: 15px; display: block;"></i>
+                Select a program/category above and click "Generate Report" to preview the sheet here.
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+    </div>
+
+    <footer class="system-footer">
+      <p>&copy; 2026 All Rights Reserved - BSIT</p>
+    </footer>
+  </main>
+
+  <div class="modal-overlay" id="editModal">
+    <div class="modal-box">
+      <div class="modal-header"><i class="fa-solid fa-sliders"></i> Adjust Student Status</div>
+      <div class="modal-body">
+        <p style="margin-top:0; font-size:14px; color:#546e7a;">Set account level flags for <strong id="modalStudentLabel">Student</strong> below:</p>
+        
+        <div class="input-group" style="margin-bottom: 15px;">
+          <label class="field-label">Operational System Status</label>
+          <select id="modalStatusSelect">
+            <option value="Active">Active</option>
+            <option value="Inactive">Inactive</option>
+          </select>
+        </div>
+
+        <p style="font-size: 12px; color: #78909c; margin-bottom: 0;">
+          * Flagging a student as "Inactive" will append system audit restrictions across registration lookup indexes.
+        </p>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="closeStatusModal()">Cancel</button>
+        <button class="modal-btn save" id="modalSaveBtn" onclick="saveStatusModalChanges()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- EDIT STUDENT INFO MODAL: Student No, Name, Category, Course/Department -->
+  <div class="modal-overlay" id="editStudentInfoModal">
+    <div class="modal-box">
+      <div class="modal-header"><i class="fa-solid fa-id-card"></i> Update Student Information</div>
+      <div class="modal-body">
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label class="field-label">Student No</label>
+          <input type="text" id="editInfoStudentNo" disabled style="background:#f0f4f5;">
+        </div>
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label class="field-label">Surname</label>
+          <input type="text" id="editInfoSurname">
+        </div>
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label class="field-label">First Name</label>
+          <input type="text" id="editInfoFirstname">
+        </div>
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label class="field-label">Middle Name</label>
+          <input type="text" id="editInfoMiddlename">
+        </div>
+        <div class="input-group" style="margin-bottom: 12px;">
+          <label class="field-label">Category</label>
+          <select id="editInfoCategory">
+            <option value="Regular">Regular</option>
+            <option value="Irregular">Irregular</option>
+          </select>
+        </div>
+        <div class="input-group">
+          <label class="field-label">Course / Department</label>
+          <select id="editInfoProgram">
+            <option>BSIT</option><option>BSBA</option><option>BSTM</option><option>BSCRIM</option>
+            <option>BSE-ENG</option><option>BEED</option><option>BSE-SOC</option><option>CPE</option>
+          </select>
+        </div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="closeEditStudentModal()">Cancel</button>
+        <button class="modal-btn save" id="editInfoSaveBtn" onclick="saveEditStudentInfo()">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- VIEW QR MODAL -->
+  <div class="modal-overlay" id="viewQRModal">
+    <div class="modal-box" style="max-width: 340px;">
+      <div class="modal-header"><i class="fa-solid fa-qrcode"></i> Student QR Code</div>
+      <div class="modal-body" style="text-align:center;">
+        <div id="viewQRStudentLabel" style="font-weight:800; margin-bottom:4px; color:#37474f;">---</div>
+        <div id="viewQRStudentMeta" style="font-size:12px; color:#78909c; margin-bottom:12px;">---</div>
+        <div id="viewQRContainer" class="clickable" onclick="openStudentInfoModal(viewQRActiveStudentNo)" style="display:inline-flex; padding:12px; background:#fff; border:1px solid #ddd; border-radius:8px; min-height:160px; min-width:160px; align-items:center; justify-content:center;">
+          <span style="font-size:11px; color:#aaa;">Loading...</span>
+        </div>
+        <div class="qr-clickable-hint"><i class="fa-solid fa-hand-pointer"></i> Click the QR code to view full student info</div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="closeQRViewModal()">Close</button>
+        <button class="modal-btn save" onclick="printViewedQR()">Print</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- STUDENT INFO POPUP (desktop equivalent of the mobile QR-scan info page) -->
+  <div class="modal-overlay" id="studentInfoModal">
+    <div class="modal-box" style="max-width: 400px;">
+      <div class="modal-header"><i class="fa-solid fa-id-card"></i> Student Information</div>
+      <div class="modal-body">
+        <div id="infoModalFullName" style="font-weight:800; font-size:16px; color:var(--green-primary); margin-bottom:8px; text-align:center;">---</div>
+        <div id="infoModalBody"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="closeStudentInfoModal()">Close</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- BULK ENROLLMENT MODAL -->
+  <div class="modal-overlay" id="bulkEnrollModal">
+    <div class="modal-box" style="max-width: 640px;">
+      <div class="modal-header"><i class="fa-solid fa-people-group"></i> Bulk Student Enrollment</div>
+      <div class="modal-body">
+        <p style="margin-top:0; font-size:13px; color:#546e7a;">
+          Paste one student per line, comma-separated, in this exact column order:
+        </p>
+        <p style="font-size:12px; font-family:monospace; background:#f7f9fa; border:1px solid #e2e8f0; border-radius:6px; padding:8px; word-break:break-all;">
+          studentNo, surname, firstname, middlename, program, section, status, yearLevel, yearEntry
+        </p>
+        <p style="font-size:11px; color:#90a4ae; margin-bottom:12px;">
+          program = BSIT / BSBA / BSTM / BSCRIM / BSE-ENG / BEED / BSE-SOC / CPE &nbsp;•&nbsp; status = Regular / Irregular
+        </p>
+        <textarea id="bulkEnrollTextarea" rows="8" style="width:100%; font-family:monospace; font-size:12px; padding:10px; border:1px solid var(--border-color); border-radius:8px; resize:vertical;" placeholder="2024-1001, Dela Cruz, Juan, Santos, BSIT, 1-1, Regular, 1st Year, 2025-2026
+2024-1002, Reyes, Maria, Garcia, BSBA, 1-2, Irregular, 1st Year, 2025-2026"></textarea>
+        <div id="bulkEnrollProgress" style="margin-top:10px; font-size:13px; color:#546e7a;"></div>
+        <div id="bulkEnrollLog" class="bulk-log" style="display:none;"></div>
+      </div>
+      <div class="modal-footer">
+        <button class="modal-btn cancel" onclick="closeBulkEnrollModal()">Cancel</button>
+        <button class="modal-btn save" id="bulkEnrollSubmitBtn" onclick="processBulkEnrollment()">Process Bulk Enrollment</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="modal-overlay open" id="loginOverlay">
+    <div class="modal-box">
+      
+      <div id="loginViewContainer">
+        <div style="text-align:center; margin-bottom: 25px;">
+          <div style="width:60px; height:60px; background: var(--bg-light); color:var(--green-primary); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:12px;">
+            <i class="fa-solid fa-shield-halved"></i>
+          </div>
+          <h3 style="margin:0; font-weight:800; color:var(--green-primary); font-size:22px;">Registrar Log In</h3>
+          <p style="margin:5px 0 0 0; font-size:13px; color:#78909c; font-weight:500;">Select system account access</p>
+        </div>
+        
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+          <div class="input-group">
+            <label class="field-label">Select System Role Profile</label>
+            <select id="loginRoleSelect" onchange="toggleLoginNameInput()">
+              <option value="Admin">System Administrator</option>
+              <option value="Registrar">Registrar Office Staff</option>
+            </select>
+          </div>
+
+          <div class="input-group" id="loginNameFieldContainer" style="display:none;">
+            <label class="field-label">Registrar Staff Profile (Username Dropdown)</label>
+            <select id="loginNameSelect">
+              <option value="">-- Choose Registered Staff Profile --</option>
+            </select>
+          </div>
+
+          <div class="input-group" id="loginPasswordFieldContainer" style="display:none;">
+            <label class="field-label">Account Security Password</label>
+            <input type="password" id="loginPasswordInput" placeholder="••••••••">
+          </div>
+        </div>
+        
+        <div class="modal-footer" style="padding-top:15px; border-top:1px solid #eee; flex-direction: column; gap: 10px;">
+          <button class="modal-btn save" style="width:100%; padding:14px;" onclick="executeSessionLogin()">Login</button>
+          <span class="login-toggle-link" onclick="switchAuthView('register')">Create an account for Registrar Office Staff</span>
+        </div>
+      </div>
+
+      <div id="registerViewContainer" style="display: none;">
+        <div style="text-align:center; margin-bottom: 25px;">
+          <div style="width:60px; height:60px; background: var(--bg-light); color:var(--blue-action); border-radius:50%; display:inline-flex; align-items:center; justify-content:center; font-size:26px; margin-bottom:12px;">
+            <i class="fa-solid fa-user-plus"></i>
+          </div>
+          <h3 style="margin:0; font-weight:800; color:var(--blue-action); font-size:22px;">Create Staff Account</h3>
+          <p style="margin:5px 0 0 0; font-size:13px; color:#78909c; font-weight:500;">Register a new workspace profile</p>
+        </div>
+
+        <div class="modal-body" style="display:flex; flex-direction:column; gap:16px;">
+          <div class="input-group">
+            <label class="field-label">Desired Username Name</label>
+            <input type="text" id="regNameInput" placeholder="e.g., name">
+          </div>
+          <div class="input-group">
+            <label class="field-label">Create Password</label>
+            <input type="password" id="regPasswordInput" placeholder="••••••••">
+          </div>
+        </div>
+
+        <div class="modal-footer" style="padding-top:15px; border-top:1px solid #eee; flex-direction: column; gap: 10px;">
+          <button class="modal-btn save" style="width:100%; padding:14px; background-color: var(--blue-action);" id="regBtn" onclick="executeSessionRegister()">Create Account & Sign In</button>
+          <span class="login-toggle-link" style="color: #78909c;" onclick="switchAuthView('login')">Back to account authentication</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+<script>
+  const scriptURL = "https://script.google.com/macros/s/AKfycbwix2pWw5jm50GMPyxcno5LMI9JOijfqbqboKJe9bcdXp4D_6MUUtApw7C9fqsRPoaS/exec";
+  let globalStudentsArray = [];
+  let currentFilteredArray = [];
+  let selectedStudentSet = new Set();
+  let currentSortField = null;
+  let currentSortDir = 'asc';
+  const PROGRAM_LIST = ["BSIT", "BSBA", "BSTM", "BSCRIM", "BSE-ENG", "BEED", "BSE-SOC", "CPE"];
+  const YEAR_LEVEL_LIST = ["1st Year", "2nd Year", "3rd Year", "4th Year", "CPE"];
+  let selectedModalStudentNo = "";
+  let metricsChartInstance = null;
+  let qrCodeInstance = null; // Instantiated variable for QR graphics control
+  
+  let currentSession = {
+    role: "Admin",
+    name: "System Administrator"
+  };
+
+  let localRegisteredStaff = [];
+
+  document.addEventListener("DOMContentLoaded", () => {
+    preFetchDatabase(true);
+    initMetricsChart();
+    populateStaffDropbox();
+  });
+
+  function switchAuthView(targetView) {
+    if (targetView === 'register') {
+      document.getElementById('loginViewContainer').style.display = 'none';
+      document.getElementById('registerViewContainer').style.display = 'block';
+    } else {
+      document.getElementById('registerViewContainer').style.display = 'none';
+      document.getElementById('loginViewContainer').style.display = 'block';
+    }
+  }
+
+  function populateStaffDropbox() {
+    const dropdown = document.getElementById('loginNameSelect');
+    dropdown.innerHTML = '<option value="">-- Staff Accounts --</option>';
+    localRegisteredStaff.forEach(staff => {
+      const opt = document.createElement('option');
+      opt.value = staff.username;
+      opt.innerText = staff.username;
+      dropdown.appendChild(opt);
+    });
+  }
+
+  async function executeSessionRegister() {
+    const regName = document.getElementById('regNameInput').value.trim();
+    const regPass = document.getElementById('regPasswordInput').value.trim();
+    const regBtn = document.getElementById('regBtn');
+
+    if (!regName || !regPass) {
+      alert("Please complete both parameters.");
+      return;
+    }
+
+    regBtn.disabled = true;
+    regBtn.innerText = "Registering Account...";
+
+    const payload = new URLSearchParams();
+    payload.append("action", "createAccount");
+    payload.append("username", regName);
+    payload.append("password", regPass);
+
+    try {
+      await fetch(scriptURL, { 
+        method: "POST", 
+        mode: "no-cors", 
+        headers: { "Content-Type": "application/x-www-form-urlencoded" },
+        body: payload.toString() 
+      });
+
+      alert(`Registration request sent for "${regName}"! Checking database sync...`);
+      document.getElementById('regNameInput').value = "";
+      document.getElementById('regPasswordInput').value = "";
+      switchAuthView('login');
+    } catch (err) {
+      console.error(err);
+      alert("Network communication failure establishing registry channel.");
+    } finally {
+      regBtn.disabled = false;
+      regBtn.innerText = "Create Account & Sign In";
+    }
+  }
+
+  async function preFetchDatabase(showLoader = false) {
+    const loader = document.getElementById('tableLoader');
+    const table = document.getElementById('masterTable');
+    
+    if(showLoader && globalStudentsArray.length === 0) {
+      loader.style.display = "block";
+      table.style.display = "none";
+    }
+
+    try {
+      const response = await fetch(`${scriptURL}?action=read&query=`);
+      const res = await response.json();
+      if(res.result === "success" && res.data.length > 0) {
+        globalStudentsArray = res.data;
+        updateMetricsChartData();
+
+        if(document.getElementById('students-view').classList.contains('active-view')) {
+          applyTableFiltersAndSearch();
+        }
+      }
+    } catch(err) {
+      console.error("Cloud synchronization error:", err);
+      if(globalStudentsArray.length === 0) {
+        loader.innerHTML = "❌ App synchronization error. Check script server status.";
+      }
+    }
+  }
+
+  function initMetricsChart() {
+    const ctx = document.getElementById('courseMetricsChart').getContext('2d');
+    metricsChartInstance = new Chart(ctx, {
+      type: 'bar',
+      data: {
+        labels: ['BSIT', 'BSBA', 'BSTM', 'BSCRIM', 'BSE-ENG', 'BEED', 'BSE-SOC', 'CPE'],
+        datasets: [{
+          label: 'Total Enrollees',
+          data: [412, 0, 0, 0, 0, 0, 0, 0],
+          backgroundColor: ['#2e7d32', '#0277bd', '#f57c00', '#6a1b9a', '#e65100', '#00796b', '#c2185b', '#455a64'],
+          borderRadius: 6,
+          borderWidth: 0,
+          barThickness: 14
+        }]
+      },
+      options: {
+        indexAxis: 'y',
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false } },
+        scales: {
+          x: { grid: { display: false }, ticks: { color: '#78909c', font: { family: 'Segoe UI', size: 11 } } },
+          y: { grid: { display: false }, ticks: { color: '#37474f', font: { family: 'Segoe UI', size: 12, weight: 'bold' } } }
+        }
+      }
+    });
+  }
+
+  function updateMetricsChartData() {
+    if (!metricsChartInstance || globalStudentsArray.length === 0) return;
+    const programs = ['BSIT', 'BSBA', 'BSTM', 'BSCRIM', 'BSE-ENG', 'BEED', 'BSE-SOC', 'CPE'];
+    const distributionCounts = programs.map(prog => {
+      return globalStudentsArray.filter(student => (student.program || '').trim().toUpperCase() === prog).length;
+    });
+    if (distributionCounts.reduce((a, b) => a + b, 0) > 0) {
+      metricsChartInstance.data.datasets[0].data = distributionCounts;
+      metricsChartInstance.update();
+    }
+  }
+
+  function toggleLoginNameInput() {
+    const selectedRole = document.getElementById('loginRoleSelect').value;
+    document.getElementById('loginNameFieldContainer').style.display = selectedRole === "Registrar" ? "flex" : "none";
+    document.getElementById('loginPasswordFieldContainer').style.display = selectedRole === "Registrar" ? "flex" : "none";
+  }
+
+  function executeSessionLogin() {
+    const role = document.getElementById('loginRoleSelect').value;
+    let name = "System Administrator";
+
+    if (role === "Registrar") {
+      const selectedStaffUser = document.getElementById('loginNameSelect').value;
+      const filledPasswordInput = document.getElementById('loginPasswordInput').value;
+
+      if (!selectedStaffUser) {
+         alert("Please choose a valid staff profile identity from the username dropdown selection.");
+         return;
+      }
+
+      const matchedProfileObj = localRegisteredStaff.find(s => s.username === selectedStaffUser);
+      if (!matchedProfileObj || matchedProfileObj.password !== filledPasswordInput) {
+        alert("Authentication failed. Invalid password supplied for this username profile.");
+        return;
+      }
+      name = selectedStaffUser;
+    }
+
+    currentSession.role = role;
+    currentSession.name = name;
+    document.getElementById('sbRole').innerText = (role === "Admin") ? "Admin Account" : "Registrar Account";
+    
+    const initials = name.split(' ').map(n => n[0]).join('').substring(0,2).toUpperCase();
+    document.getElementById('topHeaderName').innerText = name;
+    document.getElementById('topHeaderRole').innerText = (role === "Admin") ? "System Administrator" : "Registrar Office";
+    document.getElementById('topHeaderAvatar').innerText = initials;
+    document.getElementById('loginPasswordInput').value = "";
+    document.getElementById('loginOverlay').classList.remove('open');
+  }
+
+  function triggerSessionLoginModal() { document.getElementById('loginOverlay').classList.add('open'); }
+
+  function executeSessionLogout() {
+    document.getElementById('loginOverlay').classList.add('open');
+    sidebarItems.forEach(i => i.classList.remove('active'));
+    sidebarItems[0].classList.add('active');
+    systemViews.forEach(view => view.classList.remove('active-view'));
+    document.getElementById('home-view').classList.add('active-view');
+    mainBarTitle.innerText = "Home Dashboard";
+  }
+
+  const sidebarItems = document.querySelectorAll('.sidebar-menu li');
+  const systemViews = document.querySelectorAll('.view-section');
+  const mainBarTitle = document.getElementById('dynamic-title');
+
+  sidebarItems.forEach(menuItem => {
+    menuItem.addEventListener('click', function() {
+      sidebarItems.forEach(i => i.classList.remove('active'));
+      this.classList.add('active');
+      
+      const targetView = this.getAttribute('data-target');
+      systemViews.forEach(view => view.classList.remove('active-view'));
+      document.getElementById(targetView).classList.add('active-view');
+      mainBarTitle.innerText = this.innerText.trim();
+
+      if(targetView === 'students-view') {
+        applyTableFiltersAndSearch();
+        preFetchDatabase(false);
+      }
+    });
+  });
+
+  function renderStudentTable(data) {
+    const loader = document.getElementById('tableLoader');
+    const table = document.getElementById('masterTable');
+    const tbody = document.getElementById('studentTableBody');
+    tbody.innerHTML = "";
+
+    if(data.length > 0) {
+      data.forEach(student => {
+        const tr = document.createElement('tr');
+        const currentStatus = student.operationalStatus || "Active";
+        const tagClass = currentStatus.toLowerCase() === "active" ? "active-tag" : "inactive-tag";
+        const iconClass = currentStatus.toLowerCase() === "active" ? "fa-circle-check" : "fa-circle-xmark";
+
+        tr.innerHTML = `
+          <td><input type="checkbox" class="row-select-checkbox" ${selectedStudentSet.has(student.studentNo) ? 'checked' : ''} onchange="toggleRowSelect('${student.studentNo}', this.checked)"></td>
+          <td><strong>${student.studentNo}</strong></td>
+          <td>${student.surname || ''}</td>
+          <td>${student.firstname || ''}</td>
+          <td>${student.middlename || '---'}</td>
+          <td><span class="badge-category" style="background:#eceff1;color:#455a64;">${student.program || '---'}</span></td>
+          <td><span class="badge-category" style="background:#fff3e0;color:#e65100;">${student.yearLevel || '---'}</span></td>
+          <td><span class="badge-category">${student.status || '---'}</span></td>
+          <td>
+            <span class="badge-status ${tagClass}" onclick="openStatusModal('${student.studentNo}', '${student.surname || ''}, ${student.firstname || ''}', '${currentStatus}')">
+              <i class="fa-solid ${iconClass}"></i> ${currentStatus}
+            </span>
+          </td>
+          <td>
+            <div class="action-links">
+              <button class="act-btn update-req" onclick="openEditStudentModal('${student.studentNo}')">
+                <i class="fa-solid fa-pen-to-square"></i> Update
+              </button>
+            </div>
+          </td>
+          <td>
+            <div class="qr-action-links">
+              <button class="qr-act-btn enroll-btn" onclick="enrollStudentAction('${student.studentNo}')">
+                <i class="fa-solid fa-file-signature"></i> Enroll Student
+              </button>
+              <button class="qr-act-btn force-qr-btn" id="qrbtn-${student.studentNo}" onclick="forceUpdateQR('${student.studentNo}', this)">
+                <i class="fa-solid fa-qrcode"></i> Register / Force Update QR
+              </button>
+              <button class="qr-act-btn view-qr-btn" onclick="viewStudentQR('${student.studentNo}')">
+                <i class="fa-solid fa-eye"></i> View QR
+              </button>
+            </div>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      });
+      loader.style.display = "none";
+      table.style.display = "table";
+    } else if(globalStudentsArray.length === 0) {
+      loader.style.display = "block";
+      loader.innerHTML = "⏳ Connecting to central registry storage files...";
+      table.style.display = "none";
+    } else {
+      loader.style.display = "block";
+      loader.innerHTML = "🔎 No students match the current search / filters.";
+      table.style.display = "none";
+    }
+    updateSelectedCountLabel();
+  }
+
+  function routeToRequirementUpdate(studentNo) {
+    const matchedStudent = globalStudentsArray.find(s => s.studentNo === studentNo);
+    sidebarItems.forEach(i => i.classList.remove('active'));
+    const enrollMenuOption = document.querySelector('[data-target="enrollment-view"]');
+    if(enrollMenuOption) enrollMenuOption.classList.add('active');
+    
+    systemViews.forEach(view => view.classList.remove('active-view'));
+    document.getElementById('enrollment-view').classList.add('active-view');
+    mainBarTitle.innerText = "Enrollment Registration";
+    openTab({ currentTarget: document.querySelectorAll('.tab-link')[1] }, 'update');
+    
+    if(matchedStudent) {
+      selectStudent(matchedStudent);
+    } else {
+      document.getElementById('updateSearch').value = studentNo;
+      triggerManualSearch();
+    }
+  }
+
+  function openStatusModal(studentNo, fullName, currentStatus) {
+    selectedModalStudentNo = studentNo;
+    document.getElementById('modalStudentLabel').innerText = `[${studentNo}] ${fullName}`;
+    document.getElementById('modalStatusSelect').value = currentStatus;
+    document.getElementById('editModal').classList.add('open');
+  }
+
+  function closeStatusModal() {
+    document.getElementById('editModal').classList.remove('open');
+    selectedModalStudentNo = "";
+  }
+
+  function saveStatusModalChanges() {
+    const selectedStatus = document.getElementById('modalStatusSelect').value;
+    const saveBtn = document.getElementById('modalSaveBtn');
+    
+    saveBtn.innerText = "Saving...";
+    saveBtn.disabled = true;
+
+    const matchedRecord = globalStudentsArray.find(s => s.studentNo === selectedModalStudentNo);
+    if(matchedRecord) matchedRecord.operationalStatus = selectedStatus;
+    applyTableFiltersAndSearch();
+
+    const formData = new FormData();
+    formData.append("action", "updateStatus");
+    formData.append("studentNo", selectedModalStudentNo);
+    formData.append("operationalStatus", selectedStatus);
+
+    fetch(scriptURL, { method: "POST", body: formData, mode: 'no-cors' })
+    .then(() => {
+      saveBtn.innerText = "Save Changes";
+      saveBtn.disabled = false;
+      closeStatusModal();
+      // Automated QR lifecycle: an "Active" state transition regenerates the student's QR
+      autoTriggerQRLifecycle(selectedModalStudentNo, selectedStatus);
+      preFetchDatabase(false);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Network exception communicating with target Web App script deployment.");
+      saveBtn.innerText = "Save Changes";
+      saveBtn.disabled = false;
+    });
+  }
+
+  function navigateToRegistration() {
+    sidebarItems.forEach(i => i.classList.remove('active'));
+    const enrollMenuOption = document.querySelector('[data-target="enrollment-view"]');
+    if(enrollMenuOption) enrollMenuOption.classList.add('active');
+    
+    systemViews.forEach(view => view.classList.remove('active-view'));
+    document.getElementById('enrollment-view').classList.add('active-view');
+    mainBarTitle.innerText = "Enrollment Registration";
+    openTab({ currentTarget: document.querySelector('.tab-link') }, 'enrollment');
+  }
+
+  // --- QR ACTIONS COLUMN: Enroll / Force Update QR ---
+
+  function enrollStudentAction(studentNo) {
+    // Smoothly redirect the operator into the application/enrollment portal setup form,
+    // pre-loaded onto the "New Enrollment" tab so staff can finish onboarding this record.
+    sidebarItems.forEach(i => i.classList.remove('active'));
+    const enrollMenuOption = document.querySelector('[data-target="enrollment-view"]');
+    if(enrollMenuOption) enrollMenuOption.classList.add('active');
+
+    systemViews.forEach(view => view.classList.remove('active-view'));
+    document.getElementById('enrollment-view').classList.add('active-view');
+    mainBarTitle.innerText = "Enrollment Registration";
+    openTab({ currentTarget: document.querySelectorAll('.tab-link')[0] }, 'enrollment');
+
+    const matchedStudent = globalStudentsArray.find(s => s.studentNo === studentNo);
+    if(matchedStudent) {
+      const idField = document.querySelector('#studentForm input[name="studentNo"]');
+      if(idField) idField.value = matchedStudent.studentNo;
+      const surField = document.querySelector('#studentForm input[name="surname"]');
+      if(surField) surField.value = matchedStudent.surname || "";
+      const firstField = document.querySelector('#studentForm input[name="firstname"]');
+      if(firstField) firstField.value = matchedStudent.firstname || "";
+    }
+  }
+
+  async function forceUpdateQR(studentNo, btnEl) {
+    const originalHTML = btnEl.innerHTML;
+    btnEl.disabled = true;
+    btnEl.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Registering...';
+
+    const formData = new FormData();
+    formData.append("action", "registerQR");
+    formData.append("studentNo", studentNo);
+
+    try {
+      await fetch(scriptURL, { method: "POST", body: formData, mode: 'no-cors' });
+      btnEl.innerHTML = '<i class="fa-solid fa-circle-check"></i> QR Synced';
+      setTimeout(() => {
+        btnEl.innerHTML = originalHTML;
+        btnEl.disabled = false;
+      }, 2000);
+      preFetchDatabase(false);
+    } catch(err) {
+      console.error(err);
+      btnEl.innerHTML = '<i class="fa-solid fa-triangle-exclamation"></i> Retry';
+      btnEl.disabled = false;
+    }
+  }
+
+  // Fires the automated QR lifecycle pipeline whenever a record becomes/stays "Active".
+  // Mirrors what "Register / Force Update QR" does, but triggers itself on state transitions
+  // instead of needing a manual click.
+  function autoTriggerQRLifecycle(studentNo, newStatus) {
+    if((newStatus || "").toLowerCase() !== "active") return;
+    const formData = new FormData();
+    formData.append("action", "registerQR");
+    formData.append("studentNo", studentNo);
+    fetch(scriptURL, { method: "POST", body: formData, mode: 'no-cors' }).catch(err => {
+      console.error("Auto QR lifecycle pipeline failed:", err);
+    });
+  }
+
+  // --- EDIT STUDENT INFO MODAL (Student No / Name / Category / Course) ---
+
+  let editInfoStudentNo = "";
+
+  function openEditStudentModal(studentNo) {
+    const student = globalStudentsArray.find(s => s.studentNo === studentNo);
+    if(!student) { alert("Student record not found in the loaded registry."); return; }
+
+    editInfoStudentNo = studentNo;
+    document.getElementById('editInfoStudentNo').value = student.studentNo;
+    document.getElementById('editInfoSurname').value = student.surname || "";
+    document.getElementById('editInfoFirstname').value = student.firstname || "";
+    document.getElementById('editInfoMiddlename').value = student.middlename || "";
+    document.getElementById('editInfoCategory').value = student.status || "Regular";
+    document.getElementById('editInfoProgram').value = student.program || "BSIT";
+
+    document.getElementById('editStudentInfoModal').classList.add('open');
+  }
+
+  function closeEditStudentModal() {
+    document.getElementById('editStudentInfoModal').classList.remove('open');
+    editInfoStudentNo = "";
+  }
+
+  function saveEditStudentInfo() {
+    const saveBtn = document.getElementById('editInfoSaveBtn');
+    saveBtn.innerText = "Saving...";
+    saveBtn.disabled = true;
+
+    const payload = {
+      studentNo: editInfoStudentNo,
+      surname: document.getElementById('editInfoSurname').value.trim(),
+      firstname: document.getElementById('editInfoFirstname').value.trim(),
+      middlename: document.getElementById('editInfoMiddlename').value.trim(),
+      status: document.getElementById('editInfoCategory').value,
+      program: document.getElementById('editInfoProgram').value
+    };
+
+    const matchedRecord = globalStudentsArray.find(s => s.studentNo === editInfoStudentNo);
+    if(matchedRecord) Object.assign(matchedRecord, payload);
+    applyTableFiltersAndSearch();
+
+    const formData = new FormData();
+    formData.append("action", "updateInfo");
+    Object.keys(payload).forEach(k => formData.append(k, payload[k]));
+
+    fetch(scriptURL, { method: "POST", body: formData, mode: 'no-cors' })
+    .then(() => {
+      saveBtn.innerText = "Save Changes";
+      saveBtn.disabled = false;
+      closeEditStudentModal();
+      preFetchDatabase(false);
+    })
+    .catch(err => {
+      console.error(err);
+      alert("Network exception communicating with target Web App script deployment.");
+      saveBtn.innerText = "Save Changes";
+      saveBtn.disabled = false;
+    });
+  }
+
+  // --- VIEW QR MODAL ---
+
+  let viewQRInstance = null;
+  let viewQRActiveStudentNo = "";
+
+  function viewStudentQR(studentNo) {
+    const student = globalStudentsArray.find(s => s.studentNo === studentNo);
+    viewQRActiveStudentNo = studentNo;
+
+    document.getElementById('viewQRStudentLabel').innerText = student
+      ? buildStudentFullName(student)
+      : studentNo;
+
+    document.getElementById('viewQRStudentMeta').innerText = student
+      ? `${student.studentNo} • ${student.program || '---'} • ${student.yearLevel || '---'}`
+      : `ID: ${studentNo}`;
+
+    const container = document.getElementById('viewQRContainer');
+    container.innerHTML = "";
+    viewQRInstance = new QRCode(container, {
+      text: `${scriptURL}?searchID=${studentNo}`,
+      width: 160,
+      height: 160,
+      colorDark: "#000000",
+      colorLight: "#ffffff",
+      correctLevel: QRCode.CorrectLevel.H
+    });
+
+    document.getElementById('viewQRModal').classList.add('open');
+  }
+
+  function closeQRViewModal() {
+    document.getElementById('viewQRModal').classList.remove('open');
+    viewQRActiveStudentNo = "";
+  }
+
+  function printViewedQR() {
+    const qrImg = document.querySelector("#viewQRContainer img");
+    if(!qrImg || !qrImg.src) { alert("QR not ready yet — try reopening this student's QR view."); return; }
+    const student = globalStudentsArray.find(s => s.studentNo === viewQRActiveStudentNo);
+    const fullName = student ? buildStudentFullName(student) : viewQRActiveStudentNo;
+    const course = student ? (student.program || '---') : '---';
+    const yearLevel = student ? (student.yearLevel || '---') : '---';
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head><title>Print QR Code - ${viewQRActiveStudentNo}</title></head>
+        <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:90vh; font-family:Arial;">
+          <h3 style="margin:0 0 5px 0;">CSCQC REGISTRAR PROFILE</h3>
+          <img src="${qrImg.src}" width="200" height="200"/>
+          <p style="font-weight:bold; margin-top:10px; margin-bottom:0; font-size:16px;">${fullName}</p>
+          <p style="margin:4px 0; font-size:13px; color:#444;">Course: ${course} &nbsp;•&nbsp; Year Level: ${yearLevel}</p>
+          <p style="font-weight:bold; margin-top:4px; font-size:14px;">ID: ${viewQRActiveStudentNo}</p>
+          <script>window.onload = function() { window.print(); window.close(); }</` + `script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+
+  // --- BULK ENROLLMENT ---
+
+  function openBulkEnrollModal() {
+    document.getElementById('bulkEnrollTextarea').value = "";
+    document.getElementById('bulkEnrollProgress').innerText = "";
+    const log = document.getElementById('bulkEnrollLog');
+    log.style.display = "none";
+    log.innerHTML = "";
+    document.getElementById('bulkEnrollModal').classList.add('open');
+  }
+
+  function closeBulkEnrollModal() {
+    document.getElementById('bulkEnrollModal').classList.remove('open');
+  }
+
+  function parseBulkEnrollRows_(raw) {
+    const fields = ["studentNo", "surname", "firstname", "middlename", "program", "section", "status", "yearLevel", "yearEntry"];
+    return raw.split("\n")
+      .map(line => line.trim())
+      .filter(line => line.length > 0)
+      .map(line => {
+        const cols = line.split(",").map(c => c.trim());
+        const row = {};
+        fields.forEach((f, i) => { row[f] = cols[i] || ""; });
+        return row;
+      })
+      .filter(row => row.studentNo);
+  }
+
+  async function processBulkEnrollment() {
+    const raw = document.getElementById('bulkEnrollTextarea').value;
+    const rows = parseBulkEnrollRows_(raw);
+    const progress = document.getElementById('bulkEnrollProgress');
+    const log = document.getElementById('bulkEnrollLog');
+    const submitBtn = document.getElementById('bulkEnrollSubmitBtn');
+
+    if(rows.length === 0) {
+      progress.innerHTML = "<span style='color:#d32f2f;'>No valid rows detected. Check the format and try again.</span>";
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.innerText = "Processing...";
+    log.style.display = "block";
+    log.innerHTML = "";
+    progress.innerText = `Sending ${rows.length} record(s) to the registry in a single batch...`;
+
+    const formData = new FormData();
+    formData.append("action", "bulkEnroll");
+    formData.append("rows", JSON.stringify(rows));
+
+    try {
+      // Note: the Web App responds with mode 'no-cors', so we can't read a confirmed
+      // success count back — the batch is sent as one request and processed server-side.
+      await fetch(scriptURL, { method: "POST", body: formData, mode: 'no-cors' });
+
+      rows.forEach(r => {
+        const line = document.createElement('div');
+        line.className = "ok";
+        line.innerText = `✅ Sent: [${r.studentNo}] ${r.surname}, ${r.firstname}`;
+        log.appendChild(line);
+      });
+
+      progress.innerHTML = `<span style='color:#2e7d32;'>✅ Batch of ${rows.length} student(s) sent. Refreshing Student Master List...</span>`;
+      submitBtn.innerText = "Process Bulk Enrollment";
+      submitBtn.disabled = false;
+
+      setTimeout(() => preFetchDatabase(false), 1500);
+    } catch(err) {
+      console.error(err);
+      progress.innerHTML = "<span style='color:#d32f2f;'>❌ Network error sending the batch. Please retry.</span>";
+      submitBtn.innerText = "Process Bulk Enrollment";
+      submitBtn.disabled = false;
+    }
+  }
+
+  // --- CHED REPORTS ---
+
+  let lastGeneratedReportRows = [];
+  let currentChedVisibleRows = [];
+  let chedReportSortField = null;
+  let chedReportSortDir = 'asc';
+
+  function getFilteredReportRows_() {
+    const program = document.getElementById('reportProgramSelect').value;
+    const category = document.getElementById('reportCategorySelect').value;
+    const statusFilter = document.getElementById('reportStatusSelect').value;
+    return globalStudentsArray.filter(s => {
+      const matchesProgram = program === "ALL" || (s.program || '').toUpperCase() === program;
+      const matchesCategory = category === "ALL" || (s.status || '').toLowerCase() === category.toLowerCase();
+      const matchesStatus = statusFilter === "ALL" || (s.operationalStatus || 'Active').toLowerCase() === statusFilter.toLowerCase();
+      return matchesProgram && matchesCategory && matchesStatus;
+    });
+  }
+
+  function generateChedReport() {
+    lastGeneratedReportRows = getFilteredReportRows_();
+    chedReportSortField = null;
+    chedReportSortDir = 'asc';
+    document.querySelectorAll('#chedReportTable .sort-arrow').forEach(el => el.textContent = '');
+    document.getElementById('chedReportSearchInput').value = '';
+    applyChedSearchAndSort();
+  }
+
+  function sortChedColumn(field) {
+    if(lastGeneratedReportRows.length === 0) return;
+    if(chedReportSortField === field) {
+      chedReportSortDir = chedReportSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      chedReportSortField = field;
+      chedReportSortDir = 'asc';
+    }
+    document.querySelectorAll('#chedReportTable .sort-arrow').forEach(el => el.textContent = '');
+    const arrowEl = document.getElementById('chedsort-' + field);
+    if(arrowEl) arrowEl.textContent = chedReportSortDir === 'asc' ? '▲' : '▼';
+    applyChedSearchAndSort();
+  }
+
+  function applyChedSearchAndSort() {
+    const searchVal = (document.getElementById('chedReportSearchInput').value || '').trim().toUpperCase();
+
+    let rows = lastGeneratedReportRows.filter(s => {
+      if(!searchVal) return true;
+      const haystack = `${s.studentNo || ''} ${s.surname || ''} ${s.firstname || ''} ${s.middlename || ''} ${s.program || ''} ${s.status || ''}`.toUpperCase();
+      return haystack.indexOf(searchVal) > -1;
+    });
+
+    if(chedReportSortField) {
+      rows = rows.slice().sort((a, b) => {
+        const av = (a[chedReportSortField] || '').toString().toUpperCase();
+        const bv = (b[chedReportSortField] || '').toString().toUpperCase();
+        if(av < bv) return chedReportSortDir === 'asc' ? -1 : 1;
+        if(av > bv) return chedReportSortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    renderChedReportTable(rows);
+  }
+
+  function renderChedReportTable(rows) {
+    const table = document.getElementById('chedReportTable');
+    const tbody = document.getElementById('chedReportTableBody');
+    const empty = document.getElementById('chedReportEmpty');
+    const summary = document.getElementById('chedReportSummary');
+    tbody.innerHTML = "";
+
+    if(lastGeneratedReportRows.length === 0) {
+      table.style.display = "none";
+      empty.style.display = "block";
+      empty.innerHTML = "<i class='fa-solid fa-circle-exclamation' style='font-size:32px;color:#d32f2f;display:block;margin-bottom:10px;'></i>No students match that Program/Category/Status combination in the currently loaded registry.";
+      summary.innerHTML = "";
+      currentChedVisibleRows = [];
+      return;
+    }
+
+    if(rows.length === 0) {
+      table.style.display = "none";
+      empty.style.display = "block";
+      empty.innerHTML = "<i class='fa-solid fa-magnifying-glass' style='font-size:32px;color:#78909c;display:block;margin-bottom:10px;'></i>No rows match your search within this generated report.";
+      summary.innerHTML = "";
+      currentChedVisibleRows = [];
+      return;
+    }
+
+    currentChedVisibleRows = rows;
+
+    rows.forEach(s => {
+      const tr = document.createElement('tr');
+      tr.innerHTML = `
+        <td>${s.studentNo}</td><td>${s.surname || ''}</td><td>${s.firstname || ''}</td>
+        <td>${s.middlename || '---'}</td><td>${s.program || '---'}</td>
+        <td>${s.status || '---'}</td><td>${s.operationalStatus || 'Active'}</td>
+      `;
+      tbody.appendChild(tr);
+    });
+
+    empty.style.display = "none";
+    table.style.display = "table";
+
+    const activeCount = rows.filter(s => (s.operationalStatus || 'Active').toLowerCase() === 'active').length;
+    summary.innerHTML = `<strong>${rows.length}</strong> of <strong>${lastGeneratedReportRows.length}</strong> student(s) shown &nbsp;•&nbsp; <strong>${activeCount}</strong> active &nbsp;•&nbsp; <strong>${rows.length - activeCount}</strong> inactive`;
+  }
+
+  function downloadChedReportCSV() {
+    const rows = currentChedVisibleRows.length > 0 ? currentChedVisibleRows : (lastGeneratedReportRows.length > 0 ? lastGeneratedReportRows : getFilteredReportRows_());
+    if(rows.length === 0) {
+      alert("Generate a report first (or adjust your filters) — there's nothing to export yet.");
+      return;
+    }
+
+    const headers = ["Student No", "Surname", "First Name", "Middle Name", "Course", "Category", "System Status"];
+    const csvRows = [headers.join(",")];
+    rows.forEach(s => {
+      csvRows.push([
+        s.studentNo, s.surname || '', s.firstname || '', s.middlename || '',
+        s.program || '', s.status || '', s.operationalStatus || 'Active'
+      ].map(v => `"${(v || '').toString().replace(/"/g, '""')}"`).join(","));
+    });
+
+    const blob = new Blob([csvRows.join("\n")], { type: "text/csv;charset=utf-8;" });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = `CHED_Report_${document.getElementById('reportProgramSelect').value}_${Date.now()}.csv`;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    URL.revokeObjectURL(url);
+  }
+
+  // ==========================================================================
+  // FILTER, SEARCH & SORT PIPELINE
+  // ==========================================================================
+  function applyTableFiltersAndSearch() {
+    const searchVal = (document.getElementById('tableSearchInput').value || '').trim().toUpperCase();
+    const programVal = document.getElementById('filterProgram').value;
+    const yearVal = document.getElementById('filterYearLevel').value;
+    const statusVal = document.getElementById('filterStatus').value;
+
+    let filtered = globalStudentsArray.filter(s => {
+      if(programVal !== 'ALL' && (s.program || '') !== programVal) return false;
+      if(yearVal !== 'ALL' && (s.yearLevel || '') !== yearVal) return false;
+      if(statusVal !== 'ALL') {
+        const st = (s.operationalStatus || 'Active');
+        if(st.toLowerCase() !== statusVal.toLowerCase()) return false;
+      }
+      if(searchVal) {
+        const haystack = `${s.studentNo || ''} ${s.surname || ''} ${s.firstname || ''} ${s.middlename || ''} ${s.program || ''} ${s.yearLevel || ''} ${s.status || ''}`.toUpperCase();
+        if(haystack.indexOf(searchVal) === -1) return false;
+      }
+      return true;
+    });
+
+    if(currentSortField) {
+      filtered.sort((a, b) => {
+        const av = (a[currentSortField] || '').toString().toUpperCase();
+        const bv = (b[currentSortField] || '').toString().toUpperCase();
+        if(av < bv) return currentSortDir === 'asc' ? -1 : 1;
+        if(av > bv) return currentSortDir === 'asc' ? 1 : -1;
+        return 0;
+      });
+    }
+
+    currentFilteredArray = filtered;
+    renderStudentTable(filtered);
+    refreshSelectAllCheckboxState();
+  }
+
+  function sortByColumn(field) {
+    if(currentSortField === field) {
+      currentSortDir = currentSortDir === 'asc' ? 'desc' : 'asc';
+    } else {
+      currentSortField = field;
+      currentSortDir = 'asc';
+    }
+    document.querySelectorAll('.sort-arrow').forEach(el => el.textContent = '');
+    const arrowEl = document.getElementById('sort-' + field);
+    if(arrowEl) arrowEl.textContent = currentSortDir === 'asc' ? '▲' : '▼';
+    applyTableFiltersAndSearch();
+  }
+
+  // ==========================================================================
+  // ROW SELECTION (for bulk QR printing)
+  // ==========================================================================
+  function toggleRowSelect(studentNo, checked) {
+    if(checked) selectedStudentSet.add(studentNo);
+    else selectedStudentSet.delete(studentNo);
+    updateSelectedCountLabel();
+    refreshSelectAllCheckboxState();
+  }
+
+  function toggleSelectAll(checked) {
+    currentFilteredArray.forEach(s => {
+      if(checked) selectedStudentSet.add(s.studentNo);
+      else selectedStudentSet.delete(s.studentNo);
+    });
+    document.querySelectorAll('.row-select-checkbox').forEach(cb => cb.checked = checked);
+    updateSelectedCountLabel();
+  }
+
+  function refreshSelectAllCheckboxState() {
+    const headerCb = document.getElementById('selectAllCheckbox');
+    if(!headerCb) return;
+    if(currentFilteredArray.length === 0) { headerCb.checked = false; headerCb.indeterminate = false; return; }
+    const selectedInView = currentFilteredArray.filter(s => selectedStudentSet.has(s.studentNo)).length;
+    headerCb.checked = selectedInView === currentFilteredArray.length;
+    headerCb.indeterminate = selectedInView > 0 && selectedInView < currentFilteredArray.length;
+  }
+
+  function updateSelectedCountLabel() {
+    const label = document.getElementById('selectedCountLabel');
+    if(label) label.innerText = selectedStudentSet.size;
+  }
+
+  // ==========================================================================
+  // BULK QR PRINT MENU
+  // ==========================================================================
+  (function populatePrintMenuLists() {
+    document.addEventListener('DOMContentLoaded', () => {
+      const deptList = document.getElementById('printByDeptList');
+      const yearList = document.getElementById('printByYearList');
+      if(deptList) {
+        PROGRAM_LIST.forEach(p => {
+          const div = document.createElement('div');
+          div.className = 'menu-item';
+          div.innerHTML = `<i class="fa-solid fa-graduation-cap"></i> ${p}`;
+          div.onclick = () => printByDepartment(p);
+          deptList.appendChild(div);
+        });
+      }
+      if(yearList) {
+        YEAR_LEVEL_LIST.forEach(y => {
+          const div = document.createElement('div');
+          div.className = 'menu-item';
+          div.innerHTML = `<i class="fa-solid fa-layer-group"></i> ${y}`;
+          div.onclick = () => printByYearLevel(y);
+          yearList.appendChild(div);
+        });
+      }
+    });
+  })();
+
+  function toggleQRPrintMenu(evt) {
+    if(evt) evt.stopPropagation();
+    document.getElementById('qrPrintMenu').classList.toggle('open');
+  }
+
+  document.addEventListener('click', (e) => {
+    const wrap = document.querySelector('.qr-print-dropdown-wrap');
+    const menu = document.getElementById('qrPrintMenu');
+    if(wrap && menu && !wrap.contains(e.target)) menu.classList.remove('open');
+  });
+
+  function printSelectedQRs() {
+    document.getElementById('qrPrintMenu').classList.remove('open');
+    const list = globalStudentsArray.filter(s => selectedStudentSet.has(s.studentNo));
+    if(list.length === 0) { alert("No students selected. Check the boxes next to the students you want to print QR codes for."); return; }
+    openPrintableQRSheet(list, `Selected Students (${list.length})`);
+  }
+
+  function printAllFilteredQRs() {
+    document.getElementById('qrPrintMenu').classList.remove('open');
+    if(currentFilteredArray.length === 0) { alert("No students in the current view to print."); return; }
+    openPrintableQRSheet(currentFilteredArray, `Current View (${currentFilteredArray.length} students)`);
+  }
+
+  function printByDepartment(program) {
+    document.getElementById('qrPrintMenu').classList.remove('open');
+    const list = globalStudentsArray.filter(s => (s.program || '') === program);
+    if(list.length === 0) { alert(`No students found under ${program}.`); return; }
+    openPrintableQRSheet(list, `Department: ${program} (${list.length} students)`);
+  }
+
+  function printByYearLevel(year) {
+    document.getElementById('qrPrintMenu').classList.remove('open');
+    const list = globalStudentsArray.filter(s => (s.yearLevel || '') === year);
+    if(list.length === 0) { alert(`No students found under ${year}.`); return; }
+    openPrintableQRSheet(list, `Year Level: ${year} (${list.length} students)`);
+  }
+
+  function buildStudentFullName(s) {
+    const mi = s.middlename ? s.middlename.charAt(0).toUpperCase() + "." : "";
+    return `${(s.surname || '').toUpperCase()}, ${(s.firstname || '').toUpperCase()} ${mi}`.trim();
+  }
+
+  function openPrintableQRSheet(students, sheetTitle) {
+    const printWindow = window.open('', '_blank');
+    const payload = students.map(s => ({
+      studentNo: s.studentNo,
+      fullName: buildStudentFullName(s),
+      program: s.program || '---',
+      yearLevel: s.yearLevel || '---',
+      qrValue: `${scriptURL}?searchID=${s.studentNo}`
+    }));
+
+    printWindow.document.write(`
+      <html>
+        <head>
+          <title>CSCQC Student QR Codes - ${sheetTitle}</title>
+          <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></` + `script>
+          <style>
+            body { font-family: Arial, Helvetica, sans-serif; margin: 24px; color: #263238; }
+            h2 { text-align: center; color: #2e7d32; margin-bottom: 4px; }
+            .subtitle { text-align: center; color: #78909c; font-size: 12px; margin-bottom: 22px; }
+            .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(210px, 1fr)); gap: 16px; }
+            .card { border: 1px solid #cfd8dc; border-radius: 10px; padding: 16px; text-align: center; page-break-inside: avoid; }
+            .qr-holder { display: flex; align-items: center; justify-content: center; margin-bottom: 10px; min-height: 128px; }
+            .card .name { font-weight: 800; font-size: 13px; color: #263238; line-height: 1.3; }
+            .card .meta { font-size: 11px; color: #546e7a; margin-top: 3px; }
+            .card .sid { font-weight: 800; font-size: 12px; color: #2e7d32; margin-top: 8px; letter-spacing: 0.5px; }
+            .print-bar { text-align: center; margin-bottom: 20px; }
+            .print-bar button { padding: 10px 26px; background: #2e7d32; color: #fff; border: none; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; }
+            @media print { .print-bar { display: none; } }
+          </style>
+        </head>
+        <body>
+          <h2>CSCQC REGISTRAR &mdash; STUDENT QR CODES</h2>
+          <div class="subtitle">${sheetTitle} &middot; Generated ${new Date().toLocaleString()}</div>
+          <div class="print-bar"><button onclick="window.print()">Print Now</button></div>
+          <div class="grid" id="qrGrid"></div>
+          <script>
+            const STUDENTS = ${JSON.stringify(payload)};
+            const grid = document.getElementById('qrGrid');
+            STUDENTS.forEach(function(s) {
+              const card = document.createElement('div');
+              card.className = 'card';
+              const qrHolder = document.createElement('div');
+              qrHolder.className = 'qr-holder';
+              card.appendChild(qrHolder);
+              const nameEl = document.createElement('div'); nameEl.className = 'name'; nameEl.textContent = s.fullName;
+              const courseEl = document.createElement('div'); courseEl.className = 'meta'; courseEl.textContent = 'Course: ' + s.program;
+              const yearEl = document.createElement('div'); yearEl.className = 'meta'; yearEl.textContent = 'Year Level: ' + s.yearLevel;
+              const idEl = document.createElement('div'); idEl.className = 'sid'; idEl.textContent = 'ID: ' + s.studentNo;
+              card.appendChild(nameEl); card.appendChild(courseEl); card.appendChild(yearEl); card.appendChild(idEl);
+              grid.appendChild(card);
+              new QRCode(qrHolder, { text: s.qrValue, width: 120, height: 120, colorDark: '#000000', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.H });
+            });
+          <` + `/script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+
+  // ==========================================================================
+  // DESKTOP STUDENT INFO POPUP (opened by clicking the QR code itself)
+  // ==========================================================================
+  function openStudentInfoModal(studentNo) {
+    const s = globalStudentsArray.find(st => st.studentNo === studentNo);
+    if(!s) return;
+
+    const currentStatus = s.operationalStatus || "Active";
+    const fields = ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd", "cog", "evalcopy"];
+    const fieldLabels = { f138: "Form 138", pic: "2x2 Picture", f137: "Form 137", psa: "PSA Certificate", gmc: "Good Moral", dp: "Diploma", tor: "TOR", hd: "Honorable Dismissal", cog: "Certificate of Grade", evalcopy: "Evaluation Copy" };
+
+    document.getElementById('infoModalFullName').innerText = buildStudentFullName(s);
+    document.getElementById('infoModalBody').innerHTML = `
+      <div class="info-modal-row"><span class="info-label">Student No.</span><span class="info-value">${s.studentNo}</span></div>
+      <div class="info-modal-row"><span class="info-label">Course</span><span class="info-value">${s.program || '---'}</span></div>
+      <div class="info-modal-row"><span class="info-label">Year Level</span><span class="info-value">${s.yearLevel || '---'}</span></div>
+      <div class="info-modal-row"><span class="info-label">Section</span><span class="info-value">${s.section || '---'}</span></div>
+      <div class="info-modal-row"><span class="info-label">Category</span><span class="info-value">${s.status || '---'}</span></div>
+      <div class="info-modal-row"><span class="info-label">Enrollment Status</span><span class="info-value">${currentStatus}</span></div>
+      <div class="info-modal-row"><span class="info-label">Year of Entry</span><span class="info-value">${s.yearEntry || '---'}</span></div>
+      <div style="margin-top:14px; font-size:11px; font-weight:800; color:#78909c; text-transform:uppercase; letter-spacing:0.5px;">Requirements on File</div>
+      <div class="info-modal-req-grid">
+        ${fields.map(f => `<div style="font-size:12px; display:flex; justify-content:space-between;"><span style="color:#546e7a;">${fieldLabels[f]}</span><span style="font-weight:700; color:${s[f] === 'YES' ? '#2e7d32' : '#d32f2f'};">${s[f] === 'YES' ? 'On File' : 'Missing'}</span></div>`).join('')}
+      </div>
+    `;
+    document.getElementById('studentInfoModal').classList.add('open');
+  }
+
+  function closeStudentInfoModal() {
+    document.getElementById('studentInfoModal').classList.remove('open');
+  }
+
+  let activeStudentID = "";
+  let activeStudentCategory = "";
+  let searchTimeout = null;
+
+  function openTab(evt, tabName) {
+    document.querySelectorAll('.tab-content').forEach(t => t.classList.remove('active'));
+    document.querySelectorAll('.tab-link').forEach(l => l.classList.remove('active'));
+    document.getElementById(tabName).classList.add('active');
+    if(evt && evt.currentTarget) evt.currentTarget.classList.add('active');
+  }
+
+  const enrollForm = document.getElementById("studentForm");
+  const dateEnrolledInput = document.getElementById("dateEnrolled");
+  const formSaveBtn = document.getElementById("saveBtn");
+
+  dateEnrolledInput.addEventListener("input", () => { formSaveBtn.disabled = !dateEnrolledInput.value; });
+
+  document.getElementById("completeReq").addEventListener("change", (e) => {
+    const isChecked = e.target.checked;
+    const status = document.getElementById("enrollStatus").value;
+    ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd", "cog", "evalcopy"].forEach(name => {
+        document.querySelector(`#enrollment input[name="${name}"]`).checked = false;
+    });
+    if(isChecked) {
+        if(status === "Regular") {
+            ["f138", "pic", "f137", "psa", "gmc", "dp"].forEach(name => {
+                document.querySelector(`#enrollment input[name="${name}"]`).checked = true;
+            });
+        } else {
+            ["tor", "hd", "psa", "gmc", "pic", "cog", "evalcopy"].forEach(name => {
+                document.querySelector(`#enrollment input[name="${name}"]`).checked = true;
+            });
+        }
+    }
+  });
+
+  enrollForm.addEventListener("submit", e => {
+    e.preventDefault();
+    document.getElementById("msg").innerHTML = "⏳ Saving...";
+    const newStudentNo = document.querySelector('#studentForm input[name="studentNo"]').value.trim();
+
+    fetch(scriptURL, { method: "POST", body: new FormData(enrollForm) })
+    .then(() => {
+      document.getElementById("msg").innerHTML = "✅ Saved Successfully!";
+      // New records are initialized as "Active" on the backend, so kick off the
+      // automated QR generation lifecycle immediately for the freshly-enrolled student.
+      if(newStudentNo) autoTriggerQRLifecycle(newStudentNo, "Active");
+      enrollForm.reset();
+      formSaveBtn.disabled = true;
+      preFetchDatabase(false);
+    }).catch(() => { document.getElementById("msg").innerHTML = "❌ Error."; });
+  });
+
+  const searchInput = document.getElementById('updateSearch');
+  searchInput.addEventListener('input', function() {
+    clearTimeout(searchTimeout);
+    const val = this.value.trim();
+    if (val.length >= 1) {
+        searchTimeout = setTimeout(() => fetchSuggestions(val), 150);
+    } else {
+        document.getElementById('resultsDropdown').style.display = "none";
+    }
+  });
+
+  function triggerManualSearch() {
+    const val = searchInput.value.trim();
+    if(val) fetchSuggestions(val);
+  }
+
+  async function fetchSuggestions(query) {
+    try {
+      const response = await fetch(`${scriptURL}?action=read&query=${encodeURIComponent(query)}`);
+      const res = await response.json();
+      if(res.result === "success" && res.data.length > 0) {
+        showDropdown(res.data);
+      } else {
+        document.getElementById('resultsDropdown').style.display = "none";
+      }
+    } catch(e) { console.error("Search error", e); }
+  }
+
+  function showDropdown(students) {
+    const dropdown = document.getElementById('resultsDropdown');
+    dropdown.innerHTML = "";
+    students.forEach(s => {
+      const div = document.createElement('div');
+      div.className = "result-option";
+      div.innerText = `[${s.studentNo}] ${s.surname}, ${s.firstname}`;
+      div.onclick = () => selectStudent(s);
+      dropdown.appendChild(div);
+    });
+    dropdown.style.display = "block";
+  }
+
+  function selectStudent(s) {
+    activeStudentID = s.studentNo;
+    activeStudentCategory = s.status;
+    document.getElementById('resultsDropdown').style.display = "none";
+    document.getElementById('updateSearch').value = `${s.surname}, ${s.firstname}`;
+
+    const mi = s.middlename ? s.middlename.charAt(0).toUpperCase() + "." : "";
+    const fullName = `${s.surname}, ${s.firstname} ${mi}`.toUpperCase();
+    
+    document.getElementById('prevFullName').innerText = fullName;
+    document.getElementById('prevCourse').innerText = `COURSE: ${s.program || 'N/A'}`;
+    document.getElementById('prevID').innerText = `ID: ${s.studentNo}`; 
+    document.getElementById('prevStatus').innerText = `TYPE: ${s.status.toUpperCase()}`;
+    
+    // --- QR GRAPHICS GENERATION STAGE ---
+    const qrContainer = document.getElementById("studentQRCode");
+qrContainer.innerHTML = "";
+
+qrCodeInstance = new QRCode(qrContainer, {
+  text: `${scriptURL}?searchID=${s.studentNo}`, // Changed this line to point to the endpoint link
+  width: 128,
+  height: 128,
+  colorDark : "#000000",
+  colorLight : "#ffffff",
+  correctLevel : QRCode.CorrectLevel.H
+    });
+    // ------------------------------------
+
+    const fields = ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd", "cog", "evalcopy"];
+    fields.forEach(f => {
+      const checkbox = document.querySelector(`input[name="up_${f}"]`);
+      if(checkbox) checkbox.checked = (s[f] === "YES");
+    });
+    
+    syncPreview();
+    document.getElementById('updateBtn').disabled = false;
+    document.getElementById('updateMsg').innerHTML = "<span style='color:green'>✅ Student loaded.</span>";
+  }
+
+  function autoCheck(mode) {
+    const inputs = document.querySelectorAll('.up-check');
+    inputs.forEach(i => i.checked = false);
+    if (mode === "Regular") {
+        ["up_f138", "up_pic", "up_f137", "up_psa", "up_gmc", "up_dp"].forEach(name => {
+            const el = document.querySelector(`input[name="${name}"]`);
+            if(el) el.checked = true;
+        });
+    } else if (mode === "Irregular") {
+        ["up_tor", "up_hd", "up_psa", "up_gmc", "up_pic", "up_cog", "up_evalcopy"].forEach(name => {
+            const el = document.querySelector(`input[name="${name}"]`);
+            if(el) el.checked = true;
+        });
+    }
+    syncPreview();
+  }
+
+  function syncPreview() {
+    const fields = ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd", "cog", "evalcopy"];
+    fields.forEach(f => {
+      const checkEl = document.querySelector(`input[name="up_${f}"]`);
+      if(checkEl) {
+        const checked = checkEl.checked;
+        const tag = document.getElementById(`st_${f}`);
+        if(tag) {
+          tag.innerText = checked ? "COMPLETE" : "MISSING";
+          tag.className = checked ? "status-tag complete" : "status-tag";
+        }
+      }
+    });
+  }
+
+  async function submitUpdate() {
+    const formData = new FormData();
+    formData.append("action", "update");
+    formData.append("studentNo", activeStudentID);
+    
+    ["f138", "pic", "f137", "psa", "gmc", "dp", "tor", "hd", "cog", "evalcopy"].forEach(f => {
+      const el = document.querySelector(`input[name="up_${f}"]`);
+      formData.append(f, (el && el.checked) ? "YES" : "");
+    });
+
+    document.getElementById('updateMsg').innerHTML = "⏳ Updating...";
+
+    fetch(scriptURL, { method: "POST", body: formData, mode: 'no-cors' })
+    .then(() => {
+        document.getElementById('updateMsg').innerHTML = "✅ Update request sent!";
+        syncPreview(); 
+        preFetchDatabase(false);
+    })
+    .catch(() => document.getElementById('updateMsg').innerHTML = "❌ Error.");
+  }
+
+  function refreshStudent() {
+    activeStudentID = "";
+    activeStudentCategory = "";
+    document.getElementById('updateSearch').value = "";
+    document.getElementById('updateMsg').innerHTML = "";
+    document.getElementById('resultsDropdown').style.display = "none";
+    document.getElementById('prevFullName').innerText = "---";
+    document.getElementById('prevCourse').innerText = "COURSE: ---";
+    document.getElementById('prevID').innerText = "ID: ---";
+    document.getElementById('prevStatus').innerText = "TYPE: ---";
+
+    // Clear and reset the QR window layout wrapper view
+    document.getElementById("studentQRCode").innerHTML = '<span style="font-size: 11px; color: #aaa;">No Profile Selected</span>';
+    qrCodeInstance = null;
+
+    const inputs = document.querySelectorAll('.up-check');
+    inputs.forEach(i => i.checked = false);
+    document.getElementById('updateBtn').disabled = true;
+    syncPreview();
+  }
+
+  // Window execution context isolate for printing isolated graphics badge elements
+  function printQRCode() {
+    if (!activeStudentID) {
+      alert("Please load a student before attempting to run print operations!");
+      return;
+    }
+    const qrImg = document.querySelector("#studentQRCode img");
+    if(!qrImg || !qrImg.src) {
+      alert("QR Engine payload state error. Re-select target student.");
+      return;
+    }
+    const qrImageSrc = qrImg.src;
+    const student = globalStudentsArray.find(s => s.studentNo === activeStudentID);
+    const fullName = student ? buildStudentFullName(student) : activeStudentID;
+    const course = student ? (student.program || '---') : '---';
+    const yearLevel = student ? (student.yearLevel || '---') : '---';
+    const printWindow = window.open('', '_blank');
+    printWindow.document.write(`
+      <html>
+        <head><title>Print QR Code - ${activeStudentID}</title></head>
+        <body style="display:flex; flex-direction:column; align-items:center; justify-content:center; height:90vh; font-family:Arial;">
+          <h3 style="margin:0 0 5px 0;">CSCQC REGISTRAR PROFILE</h3>
+          <img src="${qrImageSrc}" width="200" height="200"/>
+          <p style="font-weight:bold; margin-top:10px; margin-bottom:0; font-size:16px;">${fullName}</p>
+          <p style="margin:4px 0; font-size:13px; color:#444;">Course: ${course} &nbsp;•&nbsp; Year Level: ${yearLevel}</p>
+          <p style="font-weight:bold; margin-top:4px; font-size:14px;">ID: ${activeStudentID}</p>
+          <script>window.onload = function() { window.print(); window.close(); }</` + `script>
+        </body>
+      </html>
+    `);
+    printWindow.document.close();
+  }
+</script>
+</body>
+</html>
