@@ -1,0 +1,466 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+  <title>CSCQC Mobile Registrar</title>
+  <style>
+    :root {
+      --bg-color: #f4f6f8;
+      --card-bg: #ffffff;
+      --primary: #107c41;
+      --primary-dark: #0b592e;
+      --warning: #e74c3c;
+      --text-dark: #2c3e50;
+      --text-muted: #7f8c8d;
+      --border-radius: 12px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif; }
+    body { background-color: var(--bg-color); color: var(--text-dark); display: flex; justify-content: center; }
+
+    /* ============================================================
+       DESKTOP BLOCKER
+       Shown instead of the app when the viewport is wider than a
+       phone/tablet. #mobileApp is hidden via JS on page load.
+    ============================================================ */
+    #desktopBlocker {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(20, 24, 28, 0.92);
+      z-index: 9999;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+    }
+    #desktopBlocker .blocker-card {
+      background: #1f2937;
+      color: #fff;
+      max-width: 420px;
+      width: 100%;
+      padding: 32px 28px;
+      border-radius: 16px;
+      text-align: center;
+      box-shadow: 0 20px 50px rgba(0,0,0,0.4);
+    }
+    #desktopBlocker .blocker-icon { font-size: 42px; margin-bottom: 14px; }
+    #desktopBlocker h2 { font-size: 18px; margin-bottom: 10px; }
+    #desktopBlocker p { font-size: 13px; color: #cbd5e1; line-height: 1.5; }
+
+    .app-container {
+      width: 100%;
+      max-width: 430px;
+      height: 100vh;
+      background: #fff;
+      display: flex;
+      flex-direction: column;
+      position: relative;
+      box-shadow: 0 0 20px rgba(0,0,0,0.1);
+    }
+
+    /* Header */
+    header {
+      padding: 16px 20px 10px;
+      background: #fff;
+      border-bottom: 1px solid #eee;
+    }
+    .user-info { display: flex; align-items: center; gap: 10px; margin-bottom: 12px; }
+    .avatar { width: 36px; height: 36px; border-radius: 50%; background: #ddd; }
+    .user-title h4 { font-size: 14px; color: var(--text-dark); }
+    .user-title p { font-size: 11px; color: var(--text-muted); }
+
+    .search-box {
+      width: 100%;
+      padding: 10px 14px;
+      border-radius: 20px;
+      border: 1px solid #e0e0e0;
+      background: #f8f9fa;
+      font-size: 14px;
+      outline: none;
+    }
+
+    /* Main Content Views */
+    .view { flex: 1; overflow-y: auto; padding: 16px; display: none; }
+    .view.active { display: block; }
+
+    /* Cards */
+    .section-title { font-size: 14px; font-weight: 700; margin: 15px 0 10px; color: #444; }
+    .program-cards { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .card-btn {
+      padding: 15px;
+      border-radius: var(--border-radius);
+      color: #fff;
+      font-weight: bold;
+      text-align: left;
+      font-size: 13px;
+      box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+      border: none;
+      cursor: pointer;
+    }
+    .card-orange { background: linear-gradient(135deg, #ff8c00, #ff5500); }
+    .card-blue { background: linear-gradient(135deg, #2196f3, #1e88e5); }
+
+    .empty-state {
+      text-align: center;
+      padding: 30px 10px;
+      color: var(--text-muted);
+      font-size: 13px;
+    }
+
+    /* Student List */
+    .student-item {
+      background: #fff;
+      border: 1px solid #eee;
+      border-radius: var(--border-radius);
+      padding: 12px 16px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      cursor: pointer;
+    }
+    .student-info h3 { font-size: 14px; font-weight: 600; }
+    .student-info p { font-size: 11px; color: var(--text-muted); }
+    .progress-bar-bg { width: 100px; height: 6px; background: #eee; border-radius: 3px; margin-top: 6px; overflow: hidden; }
+    .progress-bar-fill { height: 100%; background: var(--primary); }
+
+    /* Requirement Item Badges */
+    .req-item {
+      padding: 12px;
+      border-radius: 8px;
+      margin-bottom: 10px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-weight: 600;
+      font-size: 13px;
+    }
+    .req-verified { background: #e8f5e9; color: var(--primary); border: 1px solid #c8e6c9; }
+    .req-pending { background: #fbe9e7; color: var(--warning); border: 1px solid #ffccbc; }
+    .btn-action {
+      border: none;
+      padding: 6px 12px;
+      border-radius: 6px;
+      font-size: 11px;
+      font-weight: bold;
+      cursor: pointer;
+    }
+    .btn-verified { background: var(--primary); color: #fff; }
+    .btn-update { background: var(--warning); color: #fff; }
+
+    /* Bottom Nav */
+    nav {
+      display: flex;
+      justify-content: space-around;
+      padding: 10px 0;
+      border-top: 1px solid #eee;
+      background: #fff;
+    }
+    .nav-btn { background: none; border: none; font-size: 11px; color: var(--text-muted); cursor: pointer; padding: 6px 10px; }
+    .nav-btn.active { color: var(--primary); font-weight: bold; }
+
+    .sync-btn {
+      width: 100%;
+      padding: 12px;
+      background: #4a5568;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-weight: bold;
+      margin-top: 15px;
+      cursor: pointer;
+    }
+    .sync-btn:disabled { opacity: 0.6; cursor: not-allowed; }
+
+    .sync-status {
+      font-size: 11px;
+      text-align: center;
+      margin-top: 8px;
+      min-height: 14px;
+    }
+    .sync-status.ok { color: var(--primary); }
+    .sync-status.err { color: var(--warning); }
+
+    .back-link {
+      display: inline-block;
+      font-size: 12px;
+      color: var(--text-muted);
+      margin-bottom: 10px;
+      cursor: pointer;
+    }
+  </style>
+</head>
+<body>
+
+<!-- Desktop Blocker overlay -->
+<div id="desktopBlocker">
+  <div class="blocker-card">
+    <div class="blocker-icon">💻</div>
+    <h2>Desktop Detected</h2>
+    <p>This layout is restricted to mobile smartphones. Please open on your mobile device.</p>
+  </div>
+</div>
+
+<div class="app-container" id="mobileApp">
+  <header>
+    <div class="user-info">
+      <div class="avatar"></div>
+      <div class="user-title">
+        <h4>Registrar Staff User</h4>
+        <p>CSCQC Mobile Registrar (2026)</p>
+      </div>
+    </div>
+    <input type="text" id="searchInput" class="search-box" placeholder="Search student name or ID..." onkeyup="filterStudents()" />
+  </header>
+
+  <!-- SCREEN 1: DASHBOARD -->
+  <div id="dashboardView" class="view active">
+    <div class="section-title">Programs & Admission</div>
+    <div class="program-cards">
+      <button class="card-btn card-orange">📋<br/><br/>BSIT Programs</button>
+      <button class="card-btn card-blue">➕<br/><br/>Admission Records</button>
+    </div>
+
+    <div class="section-title">Active Students</div>
+    <div id="studentList"><!-- populated by renderStudentList() --></div>
+  </div>
+
+  <!-- SCREEN 2: REQUIREMENT UPDATE -->
+  <div id="requirementView" class="view">
+    <span class="back-link" onclick="switchTab('dashboardView', document.querySelector('.nav-btn'))">&lsaquo; Back to Dashboard</span>
+    <div style="background: var(--primary); color: white; padding: 15px; border-radius: 10px; margin-bottom: 15px;">
+      <h3 id="studentName">—</h3>
+      <p id="studentId" style="font-size: 12px; opacity: 0.9;">—</p>
+      <p style="font-size: 11px; margin-top: 8px;">Requirements: <span id="reqProgress">—</span></p>
+    </div>
+
+    <div id="requirementsList"><!-- populated by renderRequirements() --></div>
+
+    <button class="sync-btn" id="syncBtn" onclick="syncWithGoogleAppsScript()">Sync Updates (Google Apps Script)</button>
+    <p class="sync-status" id="syncStatus"></p>
+  </div>
+
+  <!-- Bottom Navigation -->
+  <nav>
+    <button class="nav-btn active" onclick="switchTab('dashboardView', this)">Dashboard</button>
+    <button class="nav-btn" onclick="openRecordsTab(this)">Records</button>
+    <button class="nav-btn" onclick="focusSearch()">Search</button>
+    <button class="nav-btn" onclick="alert('Settings coming soon.')">Settings</button>
+  </nav>
+</div>
+
+<script>
+  /* ============================================================
+     DESKTOP BLOCKER — runs first, before anything else renders
+  ============================================================ */
+  function applyDeviceGate() {
+    const isDesktop = window.innerWidth > 768;
+    document.getElementById('desktopBlocker').style.display = isDesktop ? 'flex' : 'none';
+    document.getElementById('mobileApp').style.display = isDesktop ? 'none' : 'flex';
+  }
+  applyDeviceGate();
+  window.addEventListener('resize', applyDeviceGate);
+
+  /* ============================================================
+     CONFIG
+  ============================================================ */
+  const APPS_SCRIPT_URL = "https://script.google.com/macros/s/AKfycbx_pcS8lh-kEIYt5m89PU2qGvxNYMv3zqkApVlQoTTmn0uBZZMAnPXUAU-ogSj0zSbc/exec";
+
+  /* ============================================================
+     STUDENT DATA (replace with a live fetch from Apps Script
+     once you want the mobile list pulling real records)
+  ============================================================ */
+  let students = [
+    {
+      id: "2021-0001",
+      name: "Juan D. Cruz",
+      requirements: [
+        { id: "f137", label: "Form 137 / SF10", verified: true },
+        { id: "psa",  label: "PSA Birth Certificate", verified: true },
+        { id: "gmc",  label: "Good Moral Certificate", verified: false },
+        { id: "pic",  label: "2x2 Photos", verified: true },
+        { id: "hd",   label: "Honorable Dismissal", verified: true }
+      ]
+    },
+    {
+      id: "2021-0002",
+      name: "Heny A. Aamin",
+      requirements: [
+        { id: "f137", label: "Form 137 / SF10", verified: true },
+        { id: "psa",  label: "PSA Birth Certificate", verified: false },
+        { id: "gmc",  label: "Good Moral Certificate", verified: false },
+        { id: "pic",  label: "2x2 Photos", verified: true },
+        { id: "hd",   label: "Honorable Dismissal", verified: false }
+      ]
+    }
+  ];
+
+  let activeStudentId = null;
+
+  function percentFor(student) {
+    const total = student.requirements.length;
+    const done = student.requirements.filter(r => r.verified).length;
+    return Math.round((done / total) * 100);
+  }
+
+  /* ============================================================
+     DASHBOARD RENDERING
+  ============================================================ */
+  function renderStudentList(filter = "") {
+    const list = document.getElementById('studentList');
+    const q = filter.trim().toLowerCase();
+    const filtered = students.filter(s =>
+      s.name.toLowerCase().includes(q) || s.id.toLowerCase().includes(q)
+    );
+
+    if (!filtered.length) {
+      list.innerHTML = `<div class="empty-state">No students match "${filter}".</div>`;
+      return;
+    }
+
+    list.innerHTML = filtered.map(s => {
+      const pct = percentFor(s);
+      return `
+        <div class="student-item" onclick="openStudent('${s.id}')">
+          <div class="student-info">
+            <h3>${s.name}</h3>
+            <p>(${s.id})</p>
+            <div class="progress-bar-bg"><div class="progress-bar-fill" style="width: ${pct}%;"></div></div>
+          </div>
+          <span>&rsaquo;</span>
+        </div>`;
+    }).join("");
+  }
+
+  function filterStudents() {
+    renderStudentList(document.getElementById('searchInput').value);
+  }
+
+  function focusSearch() {
+    switchTab('dashboardView', document.querySelectorAll('.nav-btn')[0]);
+    document.getElementById('searchInput').focus();
+  }
+
+  function openRecordsTab(btn) {
+    // "Records" opens the requirement view for the currently active student,
+    // or falls back to the first student if none is selected yet.
+    const target = activeStudentId || (students[0] && students[0].id);
+    if (!target) return;
+    openStudent(target, btn);
+  }
+
+  /* ============================================================
+     REQUIREMENTS VIEW
+  ============================================================ */
+  function openStudent(studentId, btn) {
+    const student = students.find(s => s.id === studentId);
+    if (!student) return;
+    activeStudentId = studentId;
+
+    document.getElementById('studentName').innerText = student.name;
+    document.getElementById('studentId').innerText = '(' + student.id + ')';
+    document.getElementById('syncStatus').innerText = "";
+    document.getElementById('syncStatus').className = "sync-status";
+
+    renderRequirements(student);
+    switchTab('requirementView', btn || document.querySelectorAll('.nav-btn')[1]);
+  }
+
+  function renderRequirements(student) {
+    const list = document.getElementById('requirementsList');
+    list.innerHTML = student.requirements.map(r => `
+      <div class="req-item ${r.verified ? 'req-verified' : 'req-pending'}" data-req-id="${r.id}">
+        <span>${r.label}</span>
+        <button class="btn-action ${r.verified ? 'btn-verified' : 'btn-update'}" onclick="toggleReq('${student.id}', '${r.id}')">
+          ${r.verified ? 'Verified' : 'Pending Update'}
+        </button>
+      </div>
+    `).join("");
+    updateProgressLabel(student);
+  }
+
+  function updateProgressLabel(student) {
+    const total = student.requirements.length;
+    const done = student.requirements.filter(r => r.verified).length;
+    document.getElementById('reqProgress').innerText = `${done} of ${total} Submitted (${percentFor(student)}%)`;
+  }
+
+  function toggleReq(studentId, reqId) {
+    const student = students.find(s => s.id === studentId);
+    if (!student) return;
+    const req = student.requirements.find(r => r.id === reqId);
+    if (!req) return;
+
+    req.verified = !req.verified;
+    renderRequirements(student);
+  }
+
+  /* ============================================================
+     NAVIGATION
+  ============================================================ */
+  function switchTab(viewId, btn) {
+    document.querySelectorAll('.view').forEach(v => v.classList.remove('active'));
+    document.querySelectorAll('.nav-btn').forEach(b => b.classList.remove('active'));
+    document.getElementById(viewId).classList.add('active');
+    if (btn) btn.classList.add('active');
+  }
+
+  /* ============================================================
+     BACKEND SYNC — Google Apps Script
+  ============================================================ */
+  async function syncWithGoogleAppsScript() {
+    const student = students.find(s => s.id === activeStudentId);
+    if (!student) return;
+
+    const btn = document.getElementById('syncBtn');
+    const status = document.getElementById('syncStatus');
+    const originalLabel = btn.innerText;
+
+    // Matches Code.gs's handleRequirementsUpdate_ contract exactly: action "update",
+    // studentNo, and one "YES"/"" per checklist field. Only fields actually present
+    // in the FormData get touched server-side — any requirement this phone doesn't
+    // track (e.g. Form 138, Diploma, TOR) is left alone, never blanked out.
+    const formData = new FormData();
+    formData.append("action", "update");
+    formData.append("studentNo", student.id);
+    student.requirements.forEach(r => {
+      formData.append(r.id, r.verified ? "YES" : "NO");
+    });
+
+    btn.disabled = true;
+    btn.innerText = "Syncing...";
+    status.innerText = "";
+    status.className = "sync-status";
+
+    try {
+      // Regular (non no-cors) request — Apps Script Web Apps deployed with
+      // "Anyone" access send CORS headers, so the JSON reply is readable here,
+      // same as the desktop app's login/account calls.
+      const response = await fetch(APPS_SCRIPT_URL, { method: "POST", body: formData });
+      const res = await response.json();
+
+      if (res.result !== "success") {
+        status.innerText = res.message || "Sync failed.";
+        status.classList.add('err');
+        return;
+      }
+
+      status.innerText = "Synced. Changes saved to Google Sheets.";
+      status.classList.add('ok');
+    } catch (err) {
+      status.innerText = "Sync error: " + err.message;
+      status.classList.add('err');
+    } finally {
+      btn.disabled = false;
+      btn.innerText = originalLabel;
+    }
+  }
+
+  /* ============================================================
+     INIT
+  ============================================================ */
+  renderStudentList();
+</script>
+</body>
+</html>
